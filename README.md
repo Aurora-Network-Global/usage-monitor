@@ -10,7 +10,9 @@ Usage report on the **Aurora Universities Alliance / OpenAIRE** portals — **CO
 - `index.html` — redirects to the dashboard above, so GitHub Pages serves it at the site root.
 - `data/Export _ *.csv` — the raw Matomo exports (Channel Type, City, Country, Main metrics, Page URLs, split by portal) that the dashboard's figures were built from.
 
-See `CLAUDE.md` for how the dashboard is built and how to update it with new data, and `TODO.md` for planned work (brand redesign, dynamic CSV loading).
+The dashboard's look matches the [Aurora Universities Alliance](https://aurora-universities.eu/) brand — Archivo Black / Manrope typography, teal/blue/navy palette.
+
+See `CLAUDE.md` for how the dashboard is built and how to update it with new data, and `TODO.md` for planned work (dynamic CSV loading).
 
 ## License
 
