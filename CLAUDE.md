@@ -15,6 +15,7 @@ There is no package.json, build tool, linter, or test suite. "Developing" here m
 - `data/` — the raw Matomo CSV exports the dashboard's figures were built from.
 - `.claude/skills/` — vendored skills for follow-up work on this repo (see below).
 - `TODO.md` — planned work: brand redesign, further reorg, dynamic CSV loading.
+- `docs/data.md` / `docs/design.md` — how the data pipeline (CSV → SQL → chart/variable) and the visual design decisions work, in more depth than fits here.
 
 ## Running / previewing
 
@@ -51,7 +52,7 @@ Key pieces in the script, top to bottom:
 
 ## Important data caveat baked into the report
 
-The dashboard explicitly calls out (in the banner near the top of the page) that across all 887 daily rows, `Unique visitors == Visits == New Visits` exactly — Matomo is not distinguishing returning visitors on these two properties. The dashboard therefore reports **visits**, not "unique visitors," and states this limitation rather than hiding it. Preserve this caveat (and re-verify it) if the underlying CSVs are refreshed.
+The dashboard explicitly calls out (in the banner near the top of the page) that across all 1,123 daily rows, `Unique visitors == Visits == New Visits` exactly — Matomo is not distinguishing returning visitors on these two properties. The dashboard therefore reports **visits**, not "unique visitors," and states this limitation rather than hiding it. Preserve this caveat (and re-verify it) if the underlying CSVs are refreshed.
 
 ## CSV exports in data/
 

@@ -7,12 +7,13 @@ Usage report on the **Aurora Universities Alliance / OpenAIRE** portals — **CO
 ## What's in this repo
 
 - `site/Aurora-OpenAIRE-Usage-Dashboard.html` — the report itself: a single, self-contained, dependency-free HTML page (monthly visits, depth of use, referrer channels, top pages, and geography for both portals).
-- `index.html` — redirects to the dashboard above, so GitHub Pages serves it at the site root.
+- `site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html` — a work-in-progress version that loads the CSVs live in the browser (DuckDB-Wasm) instead of a pre-baked copy of the data. Visit `index.html#dynamic` to see it.
+- `index.html` — redirects to the static dashboard above by default, so GitHub Pages serves it at the site root.
 - `data/Export _ *.csv` — the raw Matomo exports (Channel Type, City, Country, Main metrics, Page URLs, split by portal) that the dashboard's figures were built from.
 
 The dashboard's look matches the [Aurora Universities Alliance](https://aurora-universities.eu/) brand — Archivo Black / Manrope typography, teal/blue/navy palette.
 
-See `CLAUDE.md` for how the dashboard is built and how to update it with new data, and `TODO.md` for planned work (dynamic CSV loading).
+See `CLAUDE.md` for a quick orientation, `docs/data.md` and `docs/design.md` for the data pipeline and design decisions in depth, and `TODO.md` for what's still planned.
 
 ## License
 
