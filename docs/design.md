@@ -52,7 +52,7 @@ The `.portals` grid (`repeat(auto-fit,minmax(330px,1fr))`), the flex-wrapping `.
 - **Segmented controls** (`.seg`) — pill-shaped container, pill-shaped buttons, active state gets `--surface` background + shadow. Used for the time-range/chart-table toggles, the CONNECT/MONITOR geography toggle, and the "All traffic / Aurora members only" filter.
 - **Flagpills** (`.flagpill`) — small pill badges in IBM Plex Mono, used for "flagged" months, "mostly automated" countries, and the member (`A`) / associate-partner (`P`) markers, each recolored via `color-mix()` against the relevant `--c*` variable rather than a separate hardcoded color per badge type.
 - **Collapsible banner** (`.banner`, a native `<details>`/`<summary>`) — the "unique visitors" caveat is collapsed by default so it doesn't dominate the page, but expands to the full original callout with one click (and is screenshot-friendly once open).
-- **AI-disclosure strip** (`.aidisclosure`) — a small bordered strip directly under the header, visible without scrolling, per the `labeling-ai-generated-content` skill's placement guidance (perceivable at first exposure, not buried in a footer).
+- **AI-disclosure strip** (`.aidisclosure`, a `<details>`/`<summary>` like `.banner`) — a small bordered strip directly under the header, visible without scrolling, per the `labeling-ai-generated-content` skill's placement guidance (perceivable at first exposure, not buried in a footer). The tag and one-line summary are always visible even collapsed, so the disclosure itself is never hidden; only the fuller explanation (how the data loads, the wait, the static/live alternative) collapses by default.
 
 ## Assets
 
