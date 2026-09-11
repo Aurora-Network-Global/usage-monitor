@@ -84,17 +84,26 @@ header{padding-bottom:22px;border-bottom:1px solid var(--line);margin-bottom:22p
 .meta b{color:var(--ink-2);font-weight:500}
 
 /* banner */
-.banner{display:flex;gap:14px;background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 42%,transparent);
-  border-radius:10px;padding:16px 18px;margin-bottom:26px}
+.banner{display:block;background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 42%,transparent);
+  border-radius:10px;padding:14px 18px;margin-bottom:26px}
+.banner summary{display:flex;gap:14px;align-items:center;cursor:pointer;list-style:none;padding:2px 0}
+.banner summary::-webkit-details-marker{display:none}
+.banner summary::marker{content:''}
+.banner summary h3{margin:0}
+.banner summary .chev{margin-left:auto;flex:0 0 auto;color:var(--warn-ink);font-size:.8rem;transition:transform .15s}
+.banner[open] summary .chev{transform:rotate(180deg)}
 .banner .mark{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--warn);color:#3a2800;
   font-weight:700;font-size:.82rem;display:grid;place-items:center;margin-top:1px;font-family:"Archivo Black",sans-serif}
 .banner h3{color:var(--warn-ink);margin-bottom:3px}
+.banner .body{display:flex;gap:14px;padding-top:10px}
+.banner .body .spacer{flex:0 0 auto;width:22px}
 .banner p{margin:0;font-size:.88rem;color:var(--ink-2)}
 .banner p + p{margin-top:7px}
 
 /* section */
 section{margin-bottom:34px}
 .sechead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.sechead.sechead-stack{flex-direction:column;align-items:flex-start;gap:10px}
 .sechead p{margin:2px 0 0;font-size:.86rem;color:var(--ink-3);max-width:70ch}
 
 /* portal summary cards */
@@ -193,14 +202,20 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   </div>
 </header>
 
-<div class="banner">
-  <div class="mark">!</div>
-  <div>
+<details class="banner">
+  <summary>
+    <div class="mark">!</div>
     <h3>Read before quoting &ldquo;unique visitors&rdquo;</h3>
-    <p>In all 887 daily rows across both portals, <b>Unique visitors = Visits = New Visits</b> &mdash; exactly, every single day. No site behaves that way. Matomo on these two properties is not recognising returning visitors, so &ldquo;unique visitors&rdquo; here is a duplicate of &ldquo;visits&rdquo;, not a second measurement. Reporting both to the committee would present one number twice.</p>
-    <p>This dashboard therefore reports <b>visits</b> and states the limitation. It also means the data cannot currently answer &ldquo;how many people came back&rdquo; &mdash; the uptake question the committee most likely cares about. Worth raising with whoever administers the Matomo instance before the review.</p>
+    <span class="chev">&#9662;</span>
+  </summary>
+  <div class="body">
+    <div class="spacer"></div>
+    <div>
+      <p>In all 887 daily rows across both portals, <b>Unique visitors = Visits = New Visits</b> &mdash; exactly, every single day. No site behaves that way. Matomo on these two properties is not recognising returning visitors, so &ldquo;unique visitors&rdquo; here is a duplicate of &ldquo;visits&rdquo;, not a second measurement. Reporting both to the committee would present one number twice.</p>
+      <p>This dashboard therefore reports <b>visits</b> and states the limitation. It also means the data cannot currently answer &ldquo;how many people came back&rdquo; &mdash; the uptake question the committee most likely cares about. Worth raising with whoever administers the Matomo instance before the review.</p>
+    </div>
   </div>
-</div>
+</details>
 
 <section>
   <div class="sechead"><div><h2>Where the two portals stand</h2>
@@ -280,15 +295,15 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
 </section>
 
 <section>
-  <div class="sechead">
-    <div><h2>Where visitors come from</h2>
-      <p>Whole period, 15 Apr 2024 &ndash; 31 Aug 2026 (the geography exports do not cover MONITOR&rsquo;s first four months). Countries hosting an Aurora member university are marked <b>A</b>.</p></div>
+  <div class="sechead sechead-stack">
+    <h2>Where visitors come from</h2>
     <div class="controls">
       <div class="seg" role="group" aria-label="Portal for geography">
         <button data-geo="CONNECT" aria-pressed="true">CONNECT</button>
         <button data-geo="MONITOR" aria-pressed="false">MONITOR</button>
       </div>
     </div>
+    <p>Whole period, 15 Apr 2024 &ndash; 31 Aug 2026 (the geography exports do not cover MONITOR&rsquo;s first four months). Countries hosting an Aurora member university are marked <b>A</b>; associate-partner countries are marked <b>P</b>.</p>
   </div>
 
   <div class="duo" style="margin-bottom:16px">
@@ -299,11 +314,17 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
     </div>
     <div class="panel">
       <h3>Aurora member countries</h3>
-      <p style="margin:2px 0 0;font-size:.84rem;color:var(--ink-3)">All ten, including those with no recorded visits.</p>
+      <p style="margin:2px 0 0;font-size:.84rem;color:var(--ink-3)">All nine, including those with no recorded visits. Associate partners are not full members and are listed separately below.</p>
       <div class="tablewrap" id="partnerTable"></div>
     </div>
   </div>
 
+  <div class="controls" style="margin-bottom:12px">
+    <div class="seg" role="group" aria-label="Traffic filter">
+      <button data-scope="all" aria-pressed="true">All traffic</button>
+      <button data-scope="members" aria-pressed="false">Aurora members only</button>
+    </div>
+  </div>
   <div class="duo">
     <div class="panel">
       <h3>Top countries</h3>
@@ -721,20 +742,26 @@ const NICE = {
 })();
 
 // ---------- geography ----------
+// Current membership per aurora-universities.eu/about/who-we-are — 9 full members.
+// University of Minnesota is a former member (not on that page) and is deliberately excluded.
 const AURORA = {
   at:'University of Innsbruck', cz:'Palacký University Olomouc', dk:'Copenhagen Business School',
   fr:'Paris-East Créteil University', de:'University of Duisburg-Essen', is:'University of Iceland',
   it:'University of Naples Federico II', nl:'Vrije Universiteit Amsterdam',
-  es:'University of Rovira i Virgili', us:'University of Minnesota'
+  es:'University of Rovira i Virgili'
+};
+// Associate partners — not full members, kept distinct from AURORA above.
+const PARTNERS = {
+  sk:'Pavol Jozef Šafárik University in Košice', bg:'South-West University Neofit Rilski',
+  mk:'University of Tetova', ua:'V. N. Karazin Kharkiv National University'
 };
 const AURORA_CITY = {'Créteil':'Paris-East Créteil','Amsterdam':'VU Amsterdam','Reykjavik':'University of Iceland',
   'Innsbruck':'University of Innsbruck','Olomouc':'Palacký University','Naples':'Federico II','Napoli':'Federico II',
-  'Tarragona':'Rovira i Virgili','Copenhagen':'Copenhagen Business School','Essen':'Duisburg-Essen','Duisburg':'Duisburg-Essen',
-  'Minneapolis':'University of Minnesota'};
+  'Tarragona':'Rovira i Virgili','Copenhagen':'Copenhagen Business School','Essen':'Duisburg-Essen','Duisburg':'Duisburg-Essen'};
 const OPSITE = {'Pisa':'OpenAIRE technical site (ISTI–CNR)','Athens':'OpenAIRE coordinator (ATHENA RC)',
   'Marousi':'OpenAIRE coordinator (ATHENA RC)','Athens (Ampelokipoi)':'OpenAIRE coordinator (ATHENA RC)'};
 const DCNAMES = ['Ashburn','Dublin','Frankfurt am Main','Council Bluffs','Boardman','The Dalles','Singapore','Columbus'];
-let geoKey='CONNECT';
+let geoKey='CONNECT', geoScope='all';
 
 function renderGeo(){
   const ctry = RAW[geoKey+'_country'], city = RAW[geoKey+'_city'];
@@ -762,7 +789,7 @@ function renderGeo(){
         <span class="k" style="text-transform:none;font-size:.82rem;color:var(--ink-2)"><span class="swatch" style="display:inline-block;background:var(--line-strong);margin-right:7px"></span>Everywhere else &mdash; ${ctry.length-ctry.filter(c=>AURORA[c[1]]).length-1} countries</span>
         <span class="v" style="font-size:.98rem">${nf(other)} <span style="color:var(--ink-3);font-size:.8rem">${pct(other).toFixed(0)}%</span></span></div>
     </div>
-    <p style="margin:14px 0 0;font-size:.84rem;color:var(--ink-2)">The Aurora share is an <b>upper bound</b>, not a clean figure. ${nf(opCity)} of these visits resolve to Pisa, Athens and Marousi &mdash; OpenAIRE&rsquo;s own technical and coordinating sites, i.e. the people who build and run the portals${geoKey==='CONNECT'?', and Italy counts as an Aurora country because of Naples':''}. The US total is dominated by cloud data centres rather than by Minnesota.</p>`;
+    <p style="margin:14px 0 0;font-size:.84rem;color:var(--ink-2)">The Aurora share is an <b>upper bound</b>, not a clean figure. ${nf(opCity)} of these visits resolve to Pisa, Athens and Marousi &mdash; OpenAIRE&rsquo;s own technical and coordinating sites, i.e. the people who build and run the portals${geoKey==='CONNECT'?', and Italy counts as an Aurora country because of Naples':''}. The US total is dominated by cloud data centres, not by a member university &mdash; the University of Minnesota is a former Aurora member and is no longer counted here.</p>`;
 
   let h='<table><thead><tr><th>Member university</th><th>Country</th><th>Visits</th><th>Share</th></tr></thead><tbody>';
   Object.entries(AURORA).map(([code,uni])=>{
@@ -774,28 +801,49 @@ function renderGeo(){
       <td class="n" style="color:var(--ink-3)">${r.v?pct(r.v).toFixed(1)+'%':'—'}</td></tr>`;
   });
   h+=`<tr style="border-top:2px solid var(--line-strong)"><td><b>Total, member countries</b></td><td></td><td class="n"><b>${nf(partner)}</b></td><td class="n"><b>${pct(partner).toFixed(0)}%</b></td></tr>`;
-  document.getElementById('partnerTable').innerHTML=h+'</tbody></table>';
+  h+='</tbody></table>';
+  h+='<div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)"><div class="k" style="text-transform:uppercase;font-size:.68rem;letter-spacing:.06em;color:var(--ink-3);margin-bottom:6px">Associate partners &mdash; not full members</div><table><tbody>';
+  Object.entries(PARTNERS).map(([code,uni])=>{
+    const row=ctry.find(c=>c[1]===code);
+    return {code,uni,name:row?row[0]:'—',v:row?row[2]:0};
+  }).sort((a,b)=>b.v-a.v).forEach(r=>{
+    h+=`<tr><td style="font-size:.82rem">${r.uni}</td><td style="text-align:right;color:var(--ink-3);font-size:.82rem">${r.name}</td>
+      <td class="n">${r.v?nf(r.v):'<span style="color:var(--ink-3)">0</span>'}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  document.getElementById('partnerTable').innerHTML=h;
 
-  const cmax=ctry[0][2];
-  h='<table><thead><tr><th>Country</th><th class="barcell"></th><th>Visits</th><th>Actions / visit</th><th>Bounce</th></tr></thead><tbody>';
-  ctry.slice(0,14).forEach(c=>{
-    const isA=!!AURORA[c[1]];
+  const countryRows = ctry.map(c=>{
+    const isA=!!AURORA[c[1]], isP=!!PARTNERS[c[1]];
     const br=c[4]/c[2];
     const auto = br>=.85 && c[2]>=30;
-    h+=`<tr><td>${c[0]} ${isA?'<span class="flagpill" title="'+AURORA[c[1]]+'" style="background:color-mix(in srgb,var(--c1) 14%,transparent);color:var(--c1);border-color:color-mix(in srgb,var(--c1) 40%,transparent)">A</span>':''}${auto?'<span class="flagpill" title="Bounce rate above 85% with about one action per visit — the signature of automated traffic">mostly automated</span>':''}</td>
-      <td class="barcell"><div class="bar" style="width:${Math.max(2,c[2]/cmax*100)}%;background:${isA?'var(--c1)':'var(--line-strong)'}"></div></td>
+    return {c,isA,isP,br,auto};
+  });
+  const cShown = geoScope==='members' ? countryRows.filter(r=>r.isA) : countryRows;
+  const cmax = Math.max(...cShown.map(r=>r.c[2]), 1);
+  h='<table><thead><tr><th>Country</th><th class="barcell"></th><th>Visits</th><th>Actions / visit</th><th>Bounce</th></tr></thead><tbody>';
+  cShown.slice(0,14).forEach(({c,isA,isP,br,auto})=>{
+    h+=`<tr><td>${c[0]} ${isA?'<span class="flagpill" title="'+AURORA[c[1]]+'" style="background:color-mix(in srgb,var(--c1) 14%,transparent);color:var(--c1);border-color:color-mix(in srgb,var(--c1) 40%,transparent)">A</span>':''}${isP?'<span class="flagpill" title="'+PARTNERS[c[1]]+' — associate partner" style="background:color-mix(in srgb,var(--c4) 14%,transparent);color:var(--c4);border-color:color-mix(in srgb,var(--c4) 40%,transparent)">P</span>':''}${auto?'<span class="flagpill" title="Bounce rate above 85% with about one action per visit — the signature of automated traffic">mostly automated</span>':''}</td>
+      <td class="barcell"><div class="bar" style="width:${Math.max(2,c[2]/cmax*100)}%;background:${isA?'var(--c1)':isP?'var(--c4)':'var(--line-strong)'}"></div></td>
       <td class="n">${nf(c[2])}</td><td class="n">${(c[3]/c[2]).toFixed(1)}</td><td class="n"${auto?' style="color:var(--warn-ink)"':''}>${Math.round(br*100)}%</td></tr>`;
   });
-  h+=`<tr><td style="color:var(--ink-3)">${ctry.length-14} further countries</td><td></td><td class="n">${nf(ctry.slice(14).reduce((s,c)=>s+c[2],0))}</td><td class="n">—</td><td class="n">—</td></tr>`;
+  if(geoScope==='all'){
+    h+=`<tr><td style="color:var(--ink-3)">${ctry.length-14} further countries</td><td></td><td class="n">${nf(ctry.slice(14).reduce((s,c)=>s+c[2],0))}</td><td class="n">—</td><td class="n">—</td></tr>`;
+  }
+  if(!cShown.length){ h+='<tr><td colspan="5" style="color:var(--ink-3)">No member-country visits recorded for this portal.</td></tr>'; }
   document.getElementById('countryTable').innerHTML=h+'</tbody></table>';
 
-  const citmax=city[0][3];
-  h='<table><thead><tr><th>City</th><th class="barcell"></th><th>Visits</th><th>Bounce</th></tr></thead><tbody>';
-  city.slice(0,16).forEach(c=>{
+  const cityRows = city.map(c=>{
     const br=c[3]?c[5]/c[3]:0;
     const op=OPSITE[c[0]];
     const dc=!op && (DCNAMES.includes(c[0]) || (br>=.9 && c[3]>=15));
     const au=!op && !dc && AURORA_CITY[c[0]];
+    return {c,br,op,dc,au};
+  });
+  const ctShown = geoScope==='members' ? cityRows.filter(r=>r.au) : cityRows;
+  const citmax = Math.max(...ctShown.map(r=>r.c[3]), 1);
+  h='<table><thead><tr><th>City</th><th class="barcell"></th><th>Visits</th><th>Bounce</th></tr></thead><tbody>';
+  ctShown.slice(0,16).forEach(({c,br,op,dc,au})=>{
     let tag='';
     if(op) tag=`<small style="color:var(--warn-ink)">${op}</small>`;
     else if(dc) tag=`<small style="color:var(--warn-ink)">Cloud data centre &mdash; likely automated</small>`;
@@ -804,11 +852,16 @@ function renderGeo(){
       <td class="barcell"><div class="bar" style="width:${Math.max(2,c[3]/citmax*100)}%;background:${au?'var(--c1)':(op||dc)?'var(--warn)':'var(--line-strong)'}"></div></td>
       <td class="n">${nf(c[3])}</td><td class="n">${Math.round(br*100)}%</td></tr>`;
   });
+  if(!ctShown.length){ h+='<tr><td colspan="4" style="color:var(--ink-3)">No member-city visits recorded for this portal.</td></tr>'; }
   document.getElementById('cityTable').innerHTML=h+'</tbody></table>';
 }
 document.querySelectorAll('[data-geo]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-geo]').forEach(x=>x.setAttribute('aria-pressed',x===b));
   geoKey=b.dataset.geo; renderGeo();
+}));
+document.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-scope]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  geoScope=b.dataset.scope; renderGeo();
 }));
 renderGeo();
 
@@ -839,7 +892,7 @@ renderGeo();
   <dd>MONITOR data starts 1 Dec 2023, CONNECT data starts 25 Apr 2024, both run to 31 Aug 2026. Months are calendar months built from the daily exports. Days with no traffic are absent from the source and are treated as zero; months entirely absent appear as gaps in the lines rather than as zeros.</dd>
 
   <dt>A large share of traffic is the project&rsquo;s own team</dt>
-  <dd>Pisa is the top city on CONNECT and third on MONITOR; Marousi and Athens are close behind. Those are ISTI&ndash;CNR and ATHENA Research Center &mdash; OpenAIRE&rsquo;s technical operator and coordinator, not Aurora institutions. Créteil (Paris-East Créteil) is the one Aurora member that shows sustained, deep use: top city on MONITOR, second on CONNECT, with well-above-average session depth. Six of the ten member universities register barely any traffic at all. That, rather than the headline totals, is the uptake story.</dd>
+  <dd>Pisa is the top city on CONNECT and third on MONITOR; Marousi and Athens are close behind. Those are ISTI&ndash;CNR and ATHENA Research Center &mdash; OpenAIRE&rsquo;s technical operator and coordinator, not Aurora institutions. Créteil (Paris-East Créteil) is the one Aurora member that shows sustained, deep use: top city on MONITOR, second on CONNECT, with well-above-average session depth. Naples and Copenhagen each register only a handful of visits, and only on one portal; Tarragona (Rovira i Virgili) shows none at all in either portal&rsquo;s city breakdown. That, rather than the headline totals, is the uptake story.</dd>
 
   <dt>Geography is period totals, not monthly</dt>
   <dd>The country and city exports cover 15 Apr 2024 &ndash; 31 Aug 2026 as one lump, so they cannot be broken down by month, and MONITOR&rsquo;s first four months (Dec 2023 &ndash; Apr 2024) are outside them: geographic totals for MONITOR are 1,257 visits against 1,455 in the monthly series. City is inferred from IP address; at these volumes most city rows are single-digit, and rows resolving to cloud data centres (Ashburn, Dublin, Frankfurt) are machines, not people.</dd>
