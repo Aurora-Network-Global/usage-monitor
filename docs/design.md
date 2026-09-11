@@ -43,6 +43,10 @@ Dark-mode values are **not** from the brand (Aurora's site has no dark theme to 
 - **Corner radius**: 12px for cards/panels (`.panel`, `.pcard`), 8–10px for smaller elements, `999px` (pill) for segmented controls, badges, and flagpills — matching Aurora's own button/pill radius.
 - **Shadow** (`--shadow`): light mode uses a two-tone "neumorphic" shadow — a light highlight (`-8px -8px 16px rgba(255,255,255,.7)`) plus a dark, ink-tinted shadow (`8px 8px 20px rgba(13,10,70,.1)`, using the ink color's RGB rather than plain black) — copied from Aurora's own card style (`.uk-card-default` on the real site uses the same dual-shadow technique). Dark mode drops back to a conventional single drop-shadow; a light-on-dark highlight shadow doesn't read the same way, and Aurora's own site has no dark-mode version to match.
 
+## Responsive
+
+The `.portals` grid (`repeat(auto-fit,minmax(330px,1fr))`), the flex-wrapping `.meta` row, and the `overflow-x:auto` `.tablewrap` containers around every table were already written to collapse to a single column and scroll internally on a narrow screen. None of it activated on a real phone until a `<meta name="viewport" content="width=device-width, initial-scale=1">` tag was added to both dashboard files &mdash; without it, mobile browsers render the page at a virtual desktop-width viewport and scale the whole thing down, which is what actually produced the cramped, tiny-text mobile screenshot that prompted this fix. Verified at a 412px CSS viewport (Pixel 7 emulation): no horizontal page overflow, portal cards stack to one column, and wide tables scroll within their own `.tablewrap` instead of the page.
+
 ## Components
 
 - **Segmented controls** (`.seg`) — pill-shaped container, pill-shaped buttons, active state gets `--surface` background + shadow. Used for the time-range/chart-table toggles, the CONNECT/MONITOR geography toggle, and the "All traffic / Aurora members only" filter.
