@@ -212,11 +212,56 @@ code{font-family:"IBM Plex Mono",monospace;font-size:.82em;background:var(--surf
 .aidisclosure a{color:var(--accent)}
 .meta a{color:var(--accent)}
 
+/* Collapsible section (Cost per visit) */
+.sec-collapse{display:block}
+.sec-collapse > summary{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  cursor:pointer;list-style:none;margin-bottom:12px}
+.sec-collapse > summary::-webkit-details-marker{display:none}
+.sec-collapse > summary::marker{content:''}
+.sec-collapse > summary .sechead{margin-bottom:0;flex:1}
+.sec-collapse > summary .chev{flex:0 0 auto;color:var(--ink-3);font-size:.9rem;margin-top:4px;transition:transform .15s}
+.sec-collapse[open] > summary .chev{transform:rotate(180deg)}
+
+/* Table of contents */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.toc{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:60}
+.toc-btn{width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--line-strong);
+  box-shadow:var(--shadow);color:var(--ink-2);font-size:1rem;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.toc-btn:hover,.toc-btn[aria-expanded="true"]{color:var(--accent);border-color:var(--accent)}
+.toc-panel{display:none;position:absolute;right:48px;top:50%;transform:translateY(-50%);
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+  padding:14px 18px;max-height:70vh;overflow-y:auto;min-width:220px}
+.toc-panel.open{display:block}
+.toc-panel h4{margin:0 0 10px;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.toc-panel ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.toc-panel a{font-size:.82rem;color:var(--ink-2);text-decoration:none;display:block;line-height:1.35}
+.toc-panel a:hover,.toc-panel a.active{color:var(--accent)}
+@media (max-width:900px){.toc{display:none}}
+
 footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--ink-3)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="wrap">
+<nav class="toc" id="toc" aria-label="Table of contents">
+  <button type="button" class="toc-btn" id="tocToggle" aria-expanded="false" aria-controls="tocPanel" title="Table of contents">&#9776;</button>
+  <div class="toc-panel" id="tocPanel">
+    <h4>Contents</h4>
+    <ul>
+      <li><a href="#s-portals">Where the two portals stand</a></li>
+      <li><a href="#s-visits">Monthly visits</a></li>
+      <li><a href="#s-depth">Depth of use</a></li>
+      <li><a href="#s-channels">How visitors arrive</a></li>
+      <li><a href="#s-pages-connect">What people land on &mdash; CONNECT</a></li>
+      <li><a href="#s-pages-monitor">What people land on &mdash; MONITOR</a></li>
+      <li><a href="#s-geo">Where visitors come from</a></li>
+      <li><a href="#s-notes">Notes and caveats</a></li>
+      <li><a href="#s-cost">Cost per visit</a></li>
+    </ul>
+  </div>
+</nav>
 <header>
   <div class="eyebrow">Aurora Universities Alliance &middot; OpenAIRE</div>
   <h1>Aurora Portal Uptake</h1>
@@ -258,13 +303,13 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   </div>
 </details>
 
-<section>
+<section id="s-portals">
   <div class="sechead"><div><h2>Where the two portals stand</h2>
     <p>Headline volume over the full tracked period, with the trend that matters: the last twelve months against the twelve before them.</p></div></div>
   <div class="portals" id="portals"></div>
 </section>
 
-<section>
+<section id="s-visits">
   <div class="sechead">
     <div><h2>Monthly visits</h2>
       <p>Both portals on one scale. Months carrying an automated-traffic signature are ringed &mdash; see the notes below.</p></div>
@@ -290,7 +335,7 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   </div>
 </section>
 
-<section>
+<section id="s-depth">
   <div class="sechead"><div><h2>Depth of use</h2>
     <p>Actions per visit &mdash; pages viewed, searches run, links followed within one session. Volume says how many arrived; this says whether they did anything.</p></div></div>
   <div class="panel">
@@ -302,7 +347,7 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   </div>
 </section>
 
-<section>
+<section id="s-channels">
   <div class="sechead"><div><h2>How visitors arrive</h2>
     <p>Share of visits by referrer channel, per month. Campaigns and social are effectively absent on both portals.</p></div></div>
   <div class="duo">
@@ -324,18 +369,18 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   <div class="legend" id="chLegend"></div>
 </section>
 
-<section>
+<section id="s-pages-connect">
   <div class="sechead"><div><h2>What people land on &mdash; CONNECT</h2>
     <p>Whole period, Apr 2024 &ndash; Aug 2026. Matomo exported this as a single total, not by month, so there is no trend here. Login and claim callback URLs are grouped; they are redirects, not destinations.</p></div></div>
   <div class="panel"><div class="tablewrap" id="pagesTable"></div></div>
 </section>
 
-<section>
+<section id="s-pages-monitor">
   <div class="sechead"><div><h2>What people land on &mdash; MONITOR</h2></div></div>
   <div class="panel" id="monitorPage"></div>
 </section>
 
-<section>
+<section id="s-geo">
   <div class="sechead sechead-stack">
     <h2>Where visitors come from</h2>
     <div class="controls">
@@ -379,23 +424,57 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   </div>
 </section>
 
-<section>
+<section id="s-notes">
   <div class="sechead"><div><h2>Notes and caveats</h2></div></div>
   <div class="panel">
     <dl class="notes" id="notes"></dl>
   </div>
 </section>
 
-<section>
-  <div class="sechead"><div><h2>Cost per visit</h2>
-    <p>A rough benchmark for the &euro;10,000/year bundle cost, to help justify the effort put into uptake &mdash; not a precise industry figure.</p></div></div>
-  <div class="panel" id="costBenchmark"></div>
+<section id="s-cost">
+  <details class="sec-collapse">
+    <summary>
+      <div class="sechead"><div><h2>Cost per visit</h2>
+        <p>A rough benchmark for the &euro;10,000/year bundle cost, to help justify the effort put into uptake &mdash; not a precise industry figure.</p></div></div>
+      <span class="chev">&#9662;</span>
+    </summary>
+    <div class="panel" id="costBenchmark"></div>
+  </details>
 </section>
 
 <footer>
   Built from ten Matomo CSV exports held in the Aurora Analytics folder. Figures are as exported; no smoothing, no estimation, no gap-filling. Months with no recorded traffic appear as gaps, not zeros.
 </footer>
 </div>
+
+<script>
+(function(){
+  var toc = document.getElementById('toc');
+  var btn = document.getElementById('tocToggle');
+  var panel = document.getElementById('tocPanel');
+  if(!toc || !btn || !panel) return;
+  function closeToc(){ panel.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+  btn.addEventListener('click', function(){
+    var open = panel.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  panel.addEventListener('click', function(e){ if(e.target.tagName === 'A') closeToc(); });
+  document.addEventListener('click', function(e){ if(!toc.contains(e.target)) closeToc(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeToc(); });
+  var links = Array.prototype.slice.call(panel.querySelectorAll('a'));
+  var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  if('IntersectionObserver' in window){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        var idx = sections.indexOf(entry.target);
+        if(idx === -1) return;
+        links[idx].classList.toggle('active', entry.isIntersecting);
+      });
+    }, {rootMargin:'-40% 0px -50% 0px'});
+    sections.forEach(function(s){ if(s) obs.observe(s); });
+  }
+})();
+</script>
 
 <script type="importmap">
 {
