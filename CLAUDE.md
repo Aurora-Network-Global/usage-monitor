@@ -51,7 +51,7 @@ Key pieces in the script, top to bottom:
 
 ## Important data caveat baked into the report
 
-The dashboard explicitly calls out (in the banner near the top of the page) that across all 887 daily rows, `Unique visitors == Visits == New Visits` exactly — Matomo is not distinguishing returning visitors on these two properties. The dashboard therefore reports **visits**, not "unique visitors," and states this limitation rather than hiding it. Preserve this caveat (and re-verify it) if the underlying CSVs are refreshed.
+The dashboard explicitly calls out (in the banner near the top of the page) that across all 1,123 daily rows, `Unique visitors == Visits == New Visits` exactly — Matomo is not distinguishing returning visitors on these two properties. The dashboard therefore reports **visits**, not "unique visitors," and states this limitation rather than hiding it. Preserve this caveat (and re-verify it) if the underlying CSVs are refreshed.
 
 ## CSV exports in data/
 

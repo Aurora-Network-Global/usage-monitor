@@ -228,7 +228,7 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   <div class="body">
     <div class="spacer"></div>
     <div>
-      <p>In all 887 daily rows across both portals, <b>Unique visitors = Visits = New Visits</b> &mdash; exactly, every single day. No site behaves that way. Matomo on these two properties is not recognising returning visitors, so &ldquo;unique visitors&rdquo; here is a duplicate of &ldquo;visits&rdquo;, not a second measurement. Reporting both to the committee would present one number twice.</p>
+      <p>In all 1,123 daily rows across both portals, <b>Unique visitors = Visits = New Visits</b> &mdash; exactly, every single day. No site behaves that way. Matomo on these two properties is not recognising returning visitors, so &ldquo;unique visitors&rdquo; here is a duplicate of &ldquo;visits&rdquo;, not a second measurement. Reporting both to the committee would present one number twice.</p>
       <p>This dashboard therefore reports <b>visits</b> and states the limitation. It also means the data cannot currently answer &ldquo;how many people came back&rdquo; &mdash; the uptake question the committee most likely cares about. Worth raising with whoever administers the Matomo instance before the review.</p>
     </div>
   </div>
@@ -897,7 +897,7 @@ renderGeo();
   PORTALS.forEach(p=>Object.entries(D[p.key]).forEach(([mm,d])=>{ if(d.flag==='crawl') crawl.push(`${p.key} ${fmtMonthLong(mm)} (${d.apv.toFixed(0)} actions per visit)`); }));
   document.getElementById('notes').innerHTML=`
   <dt>&ldquo;Unique visitors&rdquo; is not usable</dt>
-  <dd>Across 554 CONNECT and 333 MONITOR daily rows, unique visitors equals visits equals new visits in every single row. Visitor recognition is not working on these properties, most likely a privacy or cookie setting in the Matomo configuration. Until it is fixed, no return-visitor or unique-audience figure can be produced from this data, and the two columns must not be presented as separate metrics.</dd>
+  <dd>Across 554 CONNECT and 569 MONITOR daily rows, unique visitors equals visits equals new visits in every single row. Visitor recognition is not working on these properties, most likely a privacy or cookie setting in the Matomo configuration. Until it is fixed, no return-visitor or unique-audience figure can be produced from this data, and the two columns must not be presented as separate metrics.</dd>
 
   <dt>Two CONNECT months carry an automated-traffic signature</dt>
   <dd>${botMonths.join(' and ')} sit far above every neighbouring month while running roughly 90% bounce and roughly 90% direct entry &mdash; the pattern of a crawler, not of people. ${botMonths.length?'They are ringed in the chart and marked in the table.':''} Excluding them, the genuine CONNECT high point is ${fmtMonthLong(c.cleanPeak)} at ${nf(D.CONNECT[c.cleanPeak].visits)} visits. Quoting the raw peak to the committee would overstate uptake.</dd>
