@@ -51,6 +51,7 @@ Found while getting the dynamic loader's output to match the static `RAW` litera
 - **`null_padding: true` is required.** Some Main metrics rows omit trailing optional columns entirely (rather than leaving them empty), which otherwise breaks DuckDB's delimiter sniffing for that file — without it, the whole header is read back as a single column.
 - **"Avg. time on page" needs an explicit `VARCHAR` type override.** Its values look like clock times (`"00:00:53"`), so DuckDB's auto-detection reads the column as `TIME` instead of display text, which breaks once a value falls outside `TIME`'s range.
 - Numeric aggregates missing due to `null_padding` (a genuinely absent trailing column) are coalesced to `0` — matching what the static page's original numbers assumed absence meant.
+- **`dist/duckdb-browser.mjs` needs a `/+esm` suffix (or an import map) on jsDelivr.** That file is not fully bundled — it contains its own bare `import ... from "apache-arrow"`, which a plain unbundled `import()` in the browser can't resolve ("Failed to resolve module specifier"). Confirmed by installing the real published package locally and grepping the shipped file. jsDelivr's `/+esm` combine mode rewrites nested bare imports to resolvable CDN URLs; an `<script type="importmap">` mapping `apache-arrow` to its own jsDelivr `/+esm` URL is kept alongside it as a fallback.
 
 ## Cost-per-visit benchmark
 
