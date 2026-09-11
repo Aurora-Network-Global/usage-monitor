@@ -1,0 +1,1 @@
+Vendored from https://github.com/leonxlnx/taste-skill (path: `skills/taste-skill/SKILL.md`), MIT licensed — see `LICENSE` in this directory. Used here to redesign this dashboard to match the style, fonts, and colors of https://aurora-universities.eu/.
