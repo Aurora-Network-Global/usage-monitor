@@ -28,7 +28,9 @@ There is nothing to install, compile, lint, or test.
 
 ## Architecture of the dashboard file
 
-The HTML file is entirely self-contained (one `<style>` block, one `<script>` block at the bottom). The only external resources are Google Fonts (Archivo, IBM Plex Sans/Mono) — everything else, including charts, is hand-rolled.
+The HTML file is entirely self-contained (one `<style>` block, one `<script>` block at the bottom). The only external resources are Google Fonts (Archivo Black, Manrope, IBM Plex Mono) — everything else, including charts, is hand-rolled.
+
+**Brand**: matches aurora-universities.eu — Archivo Black for headings/display numbers, Manrope for body text, IBM Plex Mono kept for tabular/numeric UI (Aurora's own site has no brand mono font). Core palette: `--s1`/CONNECT teal→blue `#008dff`, `--s2`/MONITOR `#01c8b1`, ink `#0d0a46`, body text `#555371`, background `#f7f8fc`, plus `#de53ae`/`#7141f1`/`#ffa255` categorical accents. All colors live in the `:root` custom properties (see Theming below) — redo the palette there, not by hunting for hardcoded hex values in the rules.
 
 **Data is baked in, not fetched at runtime.** The `<script>` starts with a `RAW` object literal — arrays of arrays, one entry per month/dimension row, keyed by dataset (`CONNECT`, `CONNECT_ch`, `MONITOR`, `MONITOR_ch`, `pages`, `mpage`, `CONNECT_country`, `CONNECT_city`, `MONITOR_country`, `MONITOR_city`). This was manually transcribed from the CSV exports; the page never reads the `.csv` files directly. **To refresh the dashboard with new data, you must re-export from Matomo, hand-condense the rows, and edit the `RAW` literal (and the `mpage` object, and `ALL_MONTHS` range in `monthsBetween('2023-12','2026-08')`) yourself.**
 
@@ -63,4 +65,4 @@ The `data/Export _ *.csv` files are raw Matomo exports (Channel Type, City, Coun
 
 ## Open work (see TODO.md)
 
-The redesign (TODO item 1) needs the actual colors/fonts/logo from aurora-universities.eu. This sandbox's network egress policy blocks fetching arbitrary external domains (confirmed: even `example.com` is blocked, not just that one host), so pulling them programmatically from here isn't possible — get them from the user, a screenshot, or a session with broader network access before applying the brand.
+Only TODO item 3 (dynamic CSV loading in-browser) is still open. Note for future fetches: this sandbox's network egress policy blocks arbitrary external domains outright (confirmed even `example.com` is blocked) — getting the actual aurora-universities.eu colors/fonts for the redesign required the user to upload a saved copy of the page rather than fetching it live; the same constraint will apply to any future live-site lookups from this repo.
