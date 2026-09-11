@@ -1,0 +1,855 @@
+<title>Aurora Portal Uptake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --ground:#f4f6f9;
+  --surface:#ffffff;
+  --surface-2:#eef1f6;
+  --ink:#111721;
+  --ink-2:#4c5665;
+  --ink-3:#7b8593;
+  --line:#dfe4ec;
+  --line-strong:#c3cbd8;
+  --accent:#2a78d6;
+  --s1:#2a78d6;   /* CONNECT */
+  --s2:#eb6834;   /* MONITOR */
+  --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4;
+  --warn:#fab219; --warn-ink:#8a5c00; --warn-bg:#fdf4e0;
+  --crit:#d03b3b; --crit-bg:#fbecec;
+  --good:#0ca30c;
+  --shadow:0 1px 2px rgba(17,23,33,.06), 0 8px 24px -12px rgba(17,23,33,.16);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --ground:#0f1319;
+    --surface:#171c24;
+    --surface-2:#1f252f;
+    --ink:#f1f4f8;
+    --ink-2:#a9b4c2;
+    --ink-3:#78828f;
+    --line:#2a323d;
+    --line-strong:#3a444f;
+    --accent:#3987e5;
+    --s1:#3987e5; --s2:#d95926;
+    --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181;
+    --warn:#fab219; --warn-ink:#f0c368; --warn-bg:#2a2318;
+    --crit:#e66767; --crit-bg:#2b1c1c;
+    --good:#0ca30c;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0f1319;
+  --surface:#171c24;
+  --surface-2:#1f252f;
+  --ink:#f1f4f8;
+  --ink-2:#a9b4c2;
+  --ink-3:#78828f;
+  --line:#2a323d;
+  --line-strong:#3a444f;
+  --accent:#3987e5;
+  --s1:#3987e5; --s2:#d95926;
+  --c1:#3987e5; --c2:#d95926; --c3:#199e70; --c4:#c98500; --c5:#d55181;
+  --warn:#fab219; --warn-ink:#f0c368; --warn-bg:#2a2318;
+  --crit:#e66767; --crit-bg:#2b1c1c;
+  --good:#0ca30c;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 72px}
+h1,h2,h3{font-family:Archivo,"IBM Plex Sans",system-ui,sans-serif;text-wrap:balance;margin:0}
+h1{font-size:2.45rem;font-weight:700;letter-spacing:-.024em;line-height:1.06}
+h2{font-size:1.15rem;font-weight:600;letter-spacing:-.008em}
+h3{font-size:.95rem;font-weight:600}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.7rem;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* header */
+header{padding-bottom:22px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.lede{color:var(--ink-2);max-width:66ch;margin:10px 0 0;font-size:1.02rem}
+.meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:16px;font-size:.8rem;color:var(--ink-3)}
+.meta b{color:var(--ink-2);font-weight:500}
+
+/* banner */
+.banner{display:flex;gap:14px;background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 42%,transparent);
+  border-radius:10px;padding:16px 18px;margin-bottom:26px}
+.banner .mark{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--warn);color:#3a2800;
+  font-weight:700;font-size:.82rem;display:grid;place-items:center;margin-top:1px;font-family:Archivo,sans-serif}
+.banner h3{color:var(--warn-ink);margin-bottom:3px}
+.banner p{margin:0;font-size:.88rem;color:var(--ink-2)}
+.banner p + p{margin-top:7px}
+
+/* section */
+section{margin-bottom:34px}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.sechead p{margin:2px 0 0;font-size:.86rem;color:var(--ink-3);max-width:70ch}
+
+/* portal summary cards */
+.portals{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:14px}
+.pcard .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ptitle{display:flex;align-items:center;gap:9px}
+.swatch{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.pname{font-family:Archivo,sans-serif;font-weight:600;font-size:1.05rem;letter-spacing:-.01em}
+.purl{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--ink-3);margin-top:1px}
+.hero{display:flex;align-items:baseline;gap:9px}
+.hero .v{font-family:Archivo,sans-serif;font-weight:700;font-size:2.5rem;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.hero .u{font-size:.8rem;color:var(--ink-3)}
+.spark{width:100%;height:52px;display:block}
+.substats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:9px;overflow:hidden}
+.substats div{background:var(--surface);padding:11px 13px}
+.substats .k{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.substats .v{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:1.05rem;font-weight:500;margin-top:2px}
+.trend{font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.trend.down{background:var(--crit-bg);color:var(--crit)}
+.trend.up{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+
+/* panel + charts */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:2px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:.8rem;
+  padding:5px 11px;border-radius:6px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:500}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.78rem;color:var(--ink-2);margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:block}
+.legend i.sq{width:10px;height:10px;border-radius:3px}
+.chartbox{position:relative;margin-top:6px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.gridline{stroke:var(--line);stroke-width:1}
+.axistext{fill:var(--ink-3);font-family:"IBM Plex Mono",monospace;font-size:10px}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;background:var(--surface);
+  border:1px solid var(--line-strong);border-radius:8px;padding:9px 11px;font-size:.78rem;box-shadow:var(--shadow);
+  min-width:132px;z-index:5}
+.tip .th{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-3);margin-bottom:5px;letter-spacing:.04em}
+.tip .row{display:flex;align-items:center;gap:7px;justify-content:space-between}
+.tip .row .lbl{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+.tip .row .val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-weight:500}
+.tip .note{margin-top:6px;padding-top:6px;border-top:1px solid var(--line);color:var(--warn-ink);font-size:.72rem}
+
+/* tables */
+.tablewrap{overflow-x:auto;margin-top:14px}
+table{border-collapse:collapse;width:100%;font-size:.84rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+thead th{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500;
+  border-bottom:1px solid var(--line-strong);position:sticky;top:0;background:var(--surface)}
+tbody td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+tbody tr:hover td{background:var(--surface-2)}
+.pathcell{font-family:"IBM Plex Mono",monospace;font-size:.78rem}
+.pathcell small{display:block;font-family:"IBM Plex Sans",sans-serif;color:var(--ink-3);font-size:.72rem;margin-top:1px}
+.bar{height:6px;border-radius:3px;background:var(--c1);min-width:2px}
+.barcell{width:150px}
+
+/* two column */
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+
+/* placeholder */
+.pending{border:1px dashed var(--line-strong);border-radius:12px;padding:22px;background:
+  repeating-linear-gradient(135deg,transparent,transparent 9px,var(--surface-2) 9px,var(--surface-2) 10px)}
+.pending .inner{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:18px}
+.steps{margin:10px 0 0;padding-left:20px;font-size:.87rem;color:var(--ink-2)}
+.steps li{margin-bottom:5px}
+code{font-family:"IBM Plex Mono",monospace;font-size:.82em;background:var(--surface-2);padding:1px 5px;border-radius:4px;
+  border:1px solid var(--line)}
+
+/* notes */
+.notes{font-size:.85rem;color:var(--ink-2)}
+.notes dt{font-weight:600;color:var(--ink);margin-top:13px;font-size:.87rem}
+.notes dt:first-child{margin-top:0}
+.notes dd{margin:3px 0 0}
+.flagpill{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-family:"IBM Plex Mono",monospace;
+  background:var(--warn-bg);color:var(--warn-ink);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);
+  padding:1px 7px;border-radius:999px}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--ink-3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Aurora Universities Alliance &middot; OpenAIRE</div>
+  <h1>Aurora Portal Uptake</h1>
+  <p class="lede">Monthly usage of the Aurora OpenAIRE <b>CONNECT</b> gateway and <b>MONITOR</b> dashboard, from Matomo. Prepared for the Aurora2030 review committee.</p>
+  <div class="meta">
+    <span><b>Period</b> Dec 2023 &ndash; Aug 2026</span>
+    <span><b>Source</b> Matomo &mdash; 10 CSV exports</span>
+    <span><b>Compiled</b> 9 Sep 2026</span>
+  </div>
+</header>
+
+<div class="banner">
+  <div class="mark">!</div>
+  <div>
+    <h3>Read before quoting &ldquo;unique visitors&rdquo;</h3>
+    <p>In all 887 daily rows across both portals, <b>Unique visitors = Visits = New Visits</b> &mdash; exactly, every single day. No site behaves that way. Matomo on these two properties is not recognising returning visitors, so &ldquo;unique visitors&rdquo; here is a duplicate of &ldquo;visits&rdquo;, not a second measurement. Reporting both to the committee would present one number twice.</p>
+    <p>This dashboard therefore reports <b>visits</b> and states the limitation. It also means the data cannot currently answer &ldquo;how many people came back&rdquo; &mdash; the uptake question the committee most likely cares about. Worth raising with whoever administers the Matomo instance before the review.</p>
+  </div>
+</div>
+
+<section>
+  <div class="sechead"><div><h2>Where the two portals stand</h2>
+    <p>Headline volume over the full tracked period, with the trend that matters: the last twelve months against the twelve before them.</p></div></div>
+  <div class="portals" id="portals"></div>
+</section>
+
+<section>
+  <div class="sechead">
+    <div><h2>Monthly visits</h2>
+      <p>Both portals on one scale. Months carrying an automated-traffic signature are ringed &mdash; see the notes below.</p></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Time range">
+        <button data-range="all" aria-pressed="true">All time</button>
+        <button data-range="24" aria-pressed="false">Last 24 m</button>
+        <button data-range="12" aria-pressed="false">Last 12 m</button>
+      </div>
+      <div class="seg" role="group" aria-label="View">
+        <button data-view="chart" aria-pressed="true">Chart</button>
+        <button data-view="table" aria-pressed="false">Table</button>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="chartbox" id="visitsBox">
+      <svg id="visitsChart" viewBox="0 0 920 330" role="img" aria-label="Monthly visits for CONNECT and MONITOR"></svg>
+      <div class="tip" id="visitsTip"></div>
+    </div>
+    <div class="legend" id="visitsLegend"></div>
+    <div class="tablewrap" id="visitsTable" hidden></div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><div><h2>Depth of use</h2>
+    <p>Actions per visit &mdash; pages viewed, searches run, links followed within one session. Volume says how many arrived; this says whether they did anything.</p></div></div>
+  <div class="panel">
+    <div class="chartbox" id="depthBox">
+      <svg id="depthChart" viewBox="0 0 920 260" role="img" aria-label="Actions per visit by month"></svg>
+      <div class="tip" id="depthTip"></div>
+    </div>
+    <div class="legend" id="depthLegend"></div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><div><h2>How visitors arrive</h2>
+    <p>Share of visits by referrer channel, per month. Campaigns and social are effectively absent on both portals.</p></div></div>
+  <div class="duo">
+    <div class="panel">
+      <h3 style="margin-bottom:2px">CONNECT</h3>
+      <div class="chartbox" id="chConnectBox">
+        <svg id="chConnect" viewBox="0 0 440 230" role="img" aria-label="CONNECT referrer channel share by month"></svg>
+        <div class="tip" id="chConnectTip"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 style="margin-bottom:2px">MONITOR</h3>
+      <div class="chartbox" id="chMonitorBox">
+        <svg id="chMonitor" viewBox="0 0 440 230" role="img" aria-label="MONITOR referrer channel share by month"></svg>
+        <div class="tip" id="chMonitorTip"></div>
+      </div>
+    </div>
+  </div>
+  <div class="legend" id="chLegend"></div>
+</section>
+
+<section>
+  <div class="sechead"><div><h2>What people land on &mdash; CONNECT</h2>
+    <p>Whole period, Apr 2024 &ndash; Aug 2026. Matomo exported this as a single total, not by month, so there is no trend here. Login and claim callback URLs are grouped; they are redirects, not destinations.</p></div></div>
+  <div class="panel"><div class="tablewrap" id="pagesTable"></div></div>
+</section>
+
+<section>
+  <div class="sechead"><div><h2>What people land on &mdash; MONITOR</h2></div></div>
+  <div class="panel" id="monitorPage"></div>
+</section>
+
+<section>
+  <div class="sechead">
+    <div><h2>Where visitors come from</h2>
+      <p>Whole period, 15 Apr 2024 &ndash; 31 Aug 2026 (the geography exports do not cover MONITOR&rsquo;s first four months). Countries hosting an Aurora member university are marked <b>A</b>.</p></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Portal for geography">
+        <button data-geo="CONNECT" aria-pressed="true">CONNECT</button>
+        <button data-geo="MONITOR" aria-pressed="false">MONITOR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="duo" style="margin-bottom:16px">
+    <div class="panel">
+      <h3>Alliance reach</h3>
+      <p style="margin:2px 0 0;font-size:.84rem;color:var(--ink-3)">Visits split by whether the country hosts an Aurora member.</p>
+      <div id="geoSplit"></div>
+    </div>
+    <div class="panel">
+      <h3>Aurora member countries</h3>
+      <p style="margin:2px 0 0;font-size:.84rem;color:var(--ink-3)">All ten, including those with no recorded visits.</p>
+      <div class="tablewrap" id="partnerTable"></div>
+    </div>
+  </div>
+
+  <div class="duo">
+    <div class="panel">
+      <h3>Top countries</h3>
+      <div class="tablewrap" id="countryTable"></div>
+    </div>
+    <div class="panel">
+      <h3>Top cities</h3>
+      <p style="margin:2px 0 0;font-size:.84rem;color:var(--ink-3)">City is inferred from IP address and is the least reliable dimension here. Rows resolving to OpenAIRE&rsquo;s own operating sites or to cloud data centres are marked.</p>
+      <div class="tablewrap" id="cityTable"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><div><h2>Notes and caveats</h2></div></div>
+  <div class="panel">
+    <dl class="notes" id="notes"></dl>
+  </div>
+</section>
+
+<footer>
+  Built from ten Matomo CSV exports held in the Aurora Analytics folder. Figures are as exported; no smoothing, no estimation, no gap-filling. Months with no recorded traffic appear as gaps, not zeros.
+</footer>
+</div>
+
+<script>
+const RAW = {"CONNECT":[["2024-04",33,41,29,41,38,148,6],["2024-05",106,252,72,248,184,13028,27],["2024-06",64,121,43,121,99,5355,14],["2024-07",68,172,41,172,116,10244,18],["2024-08",35,62,27,62,49,618,20],["2024-09",73,175,49,175,134,6339,28],["2024-10",100,287,66,287,187,12920,28],["2024-11",114,474,64,474,305,37735,27],["2024-12",82,139,64,139,113,5426,17],["2025-01",153,423,90,422,305,23742,22],["2025-02",111,303,71,303,224,10737,26],["2025-03",131,232,95,232,175,10759,28],["2025-04",90,168,56,168,122,9669,24],["2025-05",73,224,51,224,136,15513,22],["2025-06",118,513,58,513,316,38336,27],["2025-07",83,397,36,396,243,23352,22],["2025-08",251,334,229,333,287,12055,29],["2025-09",76,191,51,190,111,10283,25],["2025-10",222,313,198,313,272,10727,20],["2025-11",40,199,9,198,111,11826,16],["2025-12",22,105,12,105,63,4282,9],["2026-01",42,1333,16,1332,108,13856,15],["2026-02",30,77,16,77,58,6519,16],["2026-03",56,242,22,241,167,15467,16],["2026-04",24,80,11,80,55,4432,10],["2026-05",34,108,12,108,77,4677,18],["2026-06",32,292,11,292,166,16344,13],["2026-07",14,58,3,58,38,5016,5],["2026-08",7,12,4,12,9,127,6]],"CONNECT_ch":[["2024-04",18,9,6,0,0],["2024-05",50,22,34,0,0],["2024-06",37,10,17,0,0],["2024-07",34,9,25,0,0],["2024-08",19,1,15,0,0],["2024-09",39,16,18,0,0],["2024-10",47,14,39,0,0],["2024-11",53,21,40,0,0],["2024-12",55,3,24,0,0],["2025-01",100,5,48,0,0],["2025-02",61,1,49,0,0],["2025-03",79,5,47,0,0],["2025-04",61,0,29,0,0],["2025-05",48,4,21,0,0],["2025-06",80,1,37,0,0],["2025-07",62,0,20,1,0],["2025-08",222,1,28,0,0],["2025-09",27,2,47,0,0],["2025-10",195,0,27,0,0],["2025-11",31,0,9,0,0],["2025-12",14,0,8,0,0],["2026-01",24,2,16,0,0],["2026-02",20,2,8,0,0],["2026-03",34,0,20,0,2],["2026-04",14,0,10,0,0],["2026-05",24,0,10,0,0],["2026-06",23,0,9,0,0],["2026-07",13,1,0,0,0],["2026-08",7,0,0,0,0]],"MONITOR":[["2023-12",48,246,21,246,189,14171,14],["2024-01",31,69,20,69,58,659,19],["2024-02",49,151,24,151,123,3731,18],["2024-03",38,124,21,124,105,2134,19],["2024-04",61,214,33,214,174,8538,19],["2024-05",44,113,23,113,84,6562,13],["2024-06",53,228,32,228,162,7129,19],["2024-07",44,249,14,249,191,12189,17],["2024-08",17,117,10,117,93,4157,12],["2024-09",40,185,15,185,150,3882,19],["2024-10",46,158,25,158,123,3692,18],["2024-11",86,378,28,378,326,18865,23],["2024-12",61,252,29,252,200,11759,18],["2025-01",67,287,33,287,212,20238,20],["2025-02",54,205,22,205,155,12162,20],["2025-03",60,209,31,209,172,6625,23],["2025-04",50,156,17,156,122,7732,22],["2025-05",41,172,11,172,124,8932,18],["2025-06",91,404,35,404,301,10508,26],["2025-07",46,251,15,251,182,11667,20],["2025-08",28,83,18,83,68,2968,14],["2025-09",85,342,46,342,219,13654,27],["2025-10",39,168,16,168,130,7922,19],["2025-11",15,83,4,83,61,6575,11],["2025-12",14,44,4,44,39,2892,9],["2026-01",42,153,20,153,119,9131,13],["2026-02",54,301,20,301,202,17811,17],["2026-03",41,160,15,160,127,2066,16],["2026-04",43,147,17,147,119,6092,20],["2026-05",23,63,7,63,50,1941,15],["2026-06",18,90,6,90,69,2841,11],["2026-07",12,59,4,59,44,1231,10],["2026-08",14,46,9,46,33,4417,10]],"MONITOR_ch":[["2023-12",29,1,18,0,0],["2024-01",18,0,13,0,0],["2024-02",34,0,15,0,0],["2024-03",22,0,16,0,0],["2024-04",38,2,21,0,0],["2024-05",30,1,13,0,0],["2024-06",33,0,20,0,0],["2024-07",33,0,11,0,0],["2024-08",15,0,2,0,0],["2024-09",21,0,19,0,0],["2024-10",28,0,18,0,0],["2024-11",49,0,37,0,0],["2024-12",35,0,26,0,0],["2025-01",34,0,33,0,0],["2025-02",30,0,24,0,0],["2025-03",38,2,20,0,0],["2025-04",36,0,14,0,0],["2025-05",24,1,16,0,0],["2025-06",57,0,34,0,0],["2025-07",30,2,14,0,0],["2025-08",17,0,11,0,0],["2025-09",64,0,21,0,0],["2025-10",23,0,16,0,0],["2025-11",13,0,2,0,0],["2025-12",11,0,3,0,0],["2026-01",34,3,5,0,0],["2026-02",42,1,11,0,0],["2026-03",26,0,15,0,0],["2026-04",31,0,12,0,0],["2026-05",15,0,8,0,0],["2026-06",11,0,7,0,0],["2026-07",9,0,3,0,0],["2026-08",12,0,2,0,0]],"pages":[["search",2191,2965,635,933,"85%","00:00:53"],["/index",1617,3678,1545,1217,"59%","00:00:40"],["participate",151,208,31,43,"61%","00:00:45"],["/organizations",66,72,15,17,"47%","00:00:42"],["/fields-of-science",43,46,7,12,"71%","00:00:27"],["/sdgs",43,50,5,9,"20%","00:01:31"],["/curators",41,56,12,15,"67%","00:02:40"],["/content",40,48,19,21,"47%","00:00:45"],["/user-info?errorCode=6&redirectUrl=/participate/claim",24,89,1,4,"0%","00:00:02"],["/my-orcid-links",7,10,0,0,"0%","00:00:43"],["/myclaims",6,7,1,3,"0%","00:00:07"],["/?verify=5ZWsbnU5M0HSg6xZ",2,8,1,1,"0%","00:00:31"],["/?verify=iSFymTqFPiQnXUxF",2,6,2,1,"0%","00:00:02"],["/?verify=qo16TgjOW7w7Ua2F",2,3,2,0,"0%","00:00:04"],["/user-info?errorCode=1&redirectUrl=/?verify=5ZWsbnU5M0HSg6xZ",2,4,0,0,"0%","00:00:04"],["/user-info?errorCode=1&redirectUrl=/?verify=qo16TgjOW7w7Ua2F",2,3,0,1,"0%","00:01:15"],["/?authCode=ebb8eb6e-2743-4a66-8689-331d8cabdf14",1,1,0,0,"0%","00:02:46"],["/?previewLayout=aurora-preview-1718964158995",1,1,0,0,"0%","00:00:15"],["/?previewLayout=aurora-preview-1718964174080",1,1,0,0,"0%","00:00:19"],["/?previewLayout=aurora-preview-1728376936838",1,1,0,0,"0%","00:00:18"],["/?previewLayout=aurora-preview-1728376956526",1,1,0,0,"0%","00:00:25"],["/?previewLayout=aurora-preview-1728376983895",1,1,0,0,"0%","00:00:30"],["/?previewLayout=aurora-preview-1764691649931",1,1,0,0,"0%","00:00:37"],["/?previewLayout=aurora-preview-1768930130048",1,1,0,1,"0%","00:00:00"],["/?verify=3s5ehjCVDUbORaE6",1,3,1,1,"0%","00:00:00"],["/?verify=a24wAm5zleTa4B7X",1,1,1,0,"0%","00:00:00"],["/?verify=f91jNz2mydGn1A4K",1,2,1,0,"0%","00:00:00"],["/?verify=FrbsIxnLRWQWh8bj",1,2,1,1,"0%","00:00:01"],["/?verify=H9ni1CwdTZkHj7w9",1,3,1,0,"0%","00:00:22"],["/?verify=PXIRiJzs6Q6OlNSs",1,2,1,0,"0%","00:00:21"],["/?verify=qkndVK4nx5SQ2pgx",1,7,1,0,"0%","00:00:14"],["/organizations?authCode=7b054229-f6e0-4ec1-b8a7-81e63631e4d0",1,1,0,0,"0%","00:09:00"],["/projects",1,1,0,0,"0%","00:05:24"],["/user-info?errorCode=1&redirectUrl=/?verify=3s5ehjCVDUbORaE6",1,2,0,0,"0%","00:00:06"],["/user-info?errorCode=1&redirectUrl=/?verify=a24wAm5zleTa4B7X",1,2,0,1,"0%","00:00:00"],["/user-info?errorCode=1&redirectUrl=/?verify=f91jNz2mydGn1A4K",1,4,0,1,"0%","00:00:25"],["/user-info?errorCode=1&redirectUrl=/?verify=FrbsIxnLRWQWh8bj",1,2,0,0,"0%","00:00:43"],["/user-info?errorCode=1&redirectUrl=/?verify=H9ni1CwdTZkHj7w9",1,4,0,0,"0%","00:03:12"],["/user-info?errorCode=1&redirectUrl=/?verify=iSFymTqFPiQnXUxF",1,8,0,1,"0%","00:01:55"],["/user-info?errorCode=1&redirectUrl=/?verify=PXIRiJzs6Q6OlNSs",1,1,0,0,"0%","00:01:29"],["/user-info?errorCode=1&redirectUrl=/?verify=qkndVK4nx5SQ2pgx",1,2,0,0,"0%","00:00:06"],["/user-info?errorCode=1&redirectUrl=/?verify=XrpL17CWrZ2h9QkA",1,2,1,0,"0%","00:02:41"],["/user-info?errorCode=6&redirectUrl=/participate/direct-claim?id=doi_dedup___::515bc27fc874ad76c674a1b995d59217&type=software&linkTo=project",1,2,0,0,"0%","00:00:05"],["/user-info?errorCode=6&redirectUrl=/participate/direct-claim?id=unidue___bib::9fe402f2b90e427451dd5947bf456d98&type=publication&linkTo=project",1,2,0,0,"0%","00:00:01"],["/user-info?errorCode=6&redirectUrl=/participate/direct-claim?id=unidue___bib::c0dbf53820d6a18950fd10e47373d561&type=publication&linkTo=project",1,2,0,1,"0%","00:00:00"]],"mpage":{"label":"dashboard","upv":3985,"pv":5230,"entrances":1257,"bounce":"43%","avgtime":"00:00:44"},"CONNECT_country":[["Italy","it",325,2432,142,89321],["France","fr",324,982,186,57168],["United States","us",214,249,201,6288],["Greece","gr",194,759,84,56175],["Germany","de",165,402,104,10200],["United Kingdom","gb",132,169,118,2984],["Netherlands","nl",128,431,73,29340],["Brazil","br",73,94,71,2885],["Canada","ca",61,71,57,236],["Czechia","cz",53,142,31,5997],["Ireland","ie",51,51,51,0],["Spain","es",51,166,26,6461],["Sweden","se",49,306,20,26556],["Austria","at",43,125,23,9715],["Iceland","is",37,161,19,9144],["Australia","au",36,40,34,49],["New Zealand","nz",36,36,36,0],["Poland","pl",25,52,17,1348],["Switzerland","ch",25,213,10,10806],["Finland","fi",16,20,14,1222],["India","in",13,22,11,1293],["Mexico","mx",13,15,12,107],["Belgium","be",12,31,8,294],["Denmark","dk",11,32,3,879],["Ukraine","ua",11,15,8,620],["Slovenia","si",10,32,5,1977],["Turkey","tr",10,16,8,122],["Croatia","hr",9,11,8,126],["Algeria","dz",8,20,5,2060],["Argentina","ar",8,8,8,0],["Indonesia","id",8,13,7,69],["Portugal","pt",7,7,7,0],["Slovakia","sk",7,15,5,3312],["Norway","no",6,6,6,0],["Peru","pe",6,14,4,167],["Albania","al",5,11,3,74],["Romania","ro",5,15,3,374],["Singapore","sg",5,8,3,70],["Tunisia","tn",5,6,4,1],["Vietnam","vn",5,5,5,0],["Chile","cl",4,4,4,0],["China","cn",4,8,3,186],["Colombia","co",4,8,2,191],["Hong Kong SAR China","hk",4,6,3,110],["Lithuania","lt",4,6,2,984],["Russia","ru",4,4,4,0],["Cambodia","kh",3,3,3,0],["Ecuador","ec",3,3,3,0],["Japan","jp",3,5,2,61],["Latvia","lv",3,5,2,70],["Morocco","ma",3,5,2,24],["Azerbaijan","az",2,2,2,0],["Bangladesh","bd",2,2,2,0],["Bulgaria","bg",2,4,1,33],["El Salvador","sv",2,2,2,0],["Hungary","hu",2,6,1,68],["Malaysia","my",2,2,2,0],["Mauritius","mu",2,2,2,0],["Nigeria","ng",2,4,1,59],["Pakistan","pk",2,3,1,22],["Serbia","rs",2,2,2,0],["South Africa","za",2,2,2,0],["Thailand","th",2,8,1,75],["Belarus","by",1,1,1,0],["Benin","bj",1,1,1,0],["Cyprus","cy",1,1,1,0],["Ethiopia","et",1,2,0,37],["Jamaica","jm",1,1,1,0],["Jordan","jo",1,1,1,0],["Luxembourg","lu",1,1,1,0],["Malta","mt",1,1,1,0],["Montenegro","me",1,1,1,0],["Nicaragua","ni",1,1,1,0],["Paraguay","py",1,1,1,0],["Philippines","ph",1,1,1,0],["Puerto Rico","pr",1,1,1,0],["Somalia","so",1,1,1,0],["South Korea","kr",1,1,1,0],["United Arab Emirates","ae",1,9,0,172],["Uzbekistan","uz",1,1,1,0],["Venezuela","ve",1,1,1,0],["Zimbabwe","zw",1,1,1,0]],"CONNECT_city":[["Pisa","Italy","it",167,1977,62],["Cr\u00e9teil","France","fr",155,415,83],["Athens","Greece","gr",79,421,26],["Paris","France","fr",72,216,48],["Amsterdam","Netherlands","nl",66,181,44],["Marousi","Greece","gr",57,205,21],["Milan","Italy","it",49,122,32],["Ashburn","United States","us",42,42,42],["London","United Kingdom","gb",41,56,38],["Ume\u00e5 (Centrala Stan)","Sweden","se",35,273,9],["Reykjavik","Iceland","is",32,149,16],["Dublin","Ireland","ie",28,28,28],["Frankfurt am Main","Germany","de",27,44,20],["Catania","Italy","it",24,79,7],["Madrid","Spain","es",24,56,13],["Dallas","United States","us",22,27,21],["Marburg","Germany","de",22,56,11],["Olomouc","Czechia","cz",21,84,8],["Amsterdam (Amsterdam-Zuidoost)","Netherlands","nl",20,106,7],["Toronto","Canada","ca",20,21,19],["Utrecht","Netherlands","nl",17,93,6],["Chalandri","Greece","gr",16,47,8],["Duisburg (Duisburg Mitte)","Germany","de",16,56,6],["Helsinki","Finland","fi",16,20,14],["S\u00e3o Paulo","Brazil","br",16,16,16],["Innsbruck (H\u00f6tting)","Austria","at",13,45,6],["Lausanne","Switzerland","ch",13,130,1],["Naples","Italy","it",12,55,4],["New York","United States","us",12,13,11],["Atlanta (Buckhead)","United States","us",11,11,11]],"MONITOR_country":[["France","fr",249,1085,96,62681],["Greece","gr",218,768,100,38676],["Italy","it",171,652,73,26847],["Netherlands","nl",77,399,27,13381],["Germany","de",73,225,36,6993],["Czechia","cz",57,166,41,6288],["United States","us",38,169,17,10228],["Austria","at",33,206,8,11071],["Iceland","is",33,172,17,9036],["Spain","es",31,157,8,2492],["Sweden","se",30,84,16,2743],["Switzerland","ch",23,66,11,2181],["Poland","pl",19,48,10,637],["Denmark","dk",15,75,6,5124],["China","cn",14,124,3,8087],["Turkey","tr",13,43,7,3789],["Belgium","be",11,66,5,982],["Finland","fi",11,26,6,400],["Portugal","pt",11,41,5,516],["India","in",10,28,5,193],["Japan","jp",10,49,3,1360],["Slovenia","si",10,73,3,5197],["United Kingdom","gb",10,46,3,1067],["Australia","au",6,23,2,442],["Norway","no",6,32,1,1501],["Colombia","co",4,22,1,941],["Croatia","hr",4,12,2,712],["Cyprus","cy",4,15,1,560],["Hungary","hu",4,6,3,59],["Ireland","ie",4,7,2,37],["Serbia","rs",4,26,0,287],["Canada","ca",3,5,2,67],["Israel","il",3,13,1,182],["Mexico","mx",3,20,0,1272],["Slovakia","sk",3,20,1,177],["South Korea","kr",3,8,1,97],["United Arab Emirates","ae",3,3,3,0],["Brazil","br",2,14,0,241],["Hong Kong SAR China","hk",2,8,1,72],["Latvia","lv",2,33,0,515],["Lithuania","lt",2,3,1,27],["Luxembourg","lu",2,15,1,180],["Romania","ro",2,9,1,87],["Russia","ru",2,86,1,1583],["Tanzania","tz",2,3,1,11],["Ukraine","ua",2,2,2,0],["Armenia","am",1,9,0,22],["Azerbaijan","az",1,2,0,176],["Belarus","by",1,1,1,0],["Bosnia & Herzegovina","ba",1,17,0,313],["Chile","cl",1,4,0,9],["Costa Rica","cr",1,5,0,27],["Ecuador","ec",1,7,0,121],["Egypt","eg",1,3,0,65],["Honduras","hn",1,6,0,23],["Iran","ir",1,8,0,59],["Malta","mt",1,2,0,7],["New Zealand","nz",1,5,0,31],["Philippines","ph",1,1,1,0],["South Africa","za",1,3,0,22],["Thailand","th",1,1,1,0],["Uzbekistan","uz",1,1,1,0],["Vietnam","vn",1,1,1,0],["Zimbabwe","zw",1,1,1,0]],"MONITOR_city":[["Cr\u00e9teil","France","fr",184,809,69],["Marousi","Greece","gr",88,320,37],["Pisa","Italy","it",84,332,31],["Athens","Greece","gr",34,140,17],["Amsterdam","Netherlands","nl",31,107,11],["Reykjavik","Iceland","is",30,164,16],["Athens (Ampelokipoi)","Greece","gr",28,134,9],["Brno","Czechia","cz",28,42,26],["Paris","France","fr",27,147,10],["Milan","Italy","it",22,78,11],["Amsterdam (Amsterdam-Zuidoost)","Netherlands","nl",16,117,4],["Zurich","Switzerland","ch",16,47,7],["Beijing","China","cn",14,124,3],["Copenhagen","Denmark","dk",13,73,4],["Duisburg (Duisburg Mitte)","Germany","de",13,51,5],["Innsbruck (H\u00f6tting)","Austria","at",13,116,2],["Madrid","Spain","es",12,62,2],["Houston (Almeda)","United States","us",11,25,5],["Warsaw (\u015ar\u00f3dmie\u015bcie)","Poland","pl",11,26,6],["Helsinki","Finland","fi",10,25,5],["Marburg","Germany","de",10,23,6],["Syracuse","Italy","it",10,35,5],["Chalandri","Greece","gr",9,26,5],["Ljubljana","Slovenia","si",9,61,3],["Olomouc","Czechia","cz",9,70,3],["Prague (Praha 4)","Czechia","cz",9,18,6],["Voula","Greece","gr",9,18,4],["Catania","Italy","it",7,56,1],["Chiyoda","Japan","jp",7,38,3],["Frankfurt am Main","Germany","de",7,11,5]]};
+
+const PORTALS = [
+  {key:'CONNECT', name:'OpenAIRE CONNECT', url:'aurora.openaire.eu', color:'var(--s1)', role:'Community gateway &mdash; search, claim, curate'},
+  {key:'MONITOR', name:'OpenAIRE MONITOR', name2:'MONITOR', url:'monitor.openaire.eu/dashboard/aurora', color:'var(--s2)', role:'Open science indicator dashboard'}
+];
+const CH = [
+  {k:'Direct Entry', v:'--c1'},
+  {k:'Search Engines', v:'--c2'},
+  {k:'Websites', v:'--c3'},
+  {k:'Social Networks', v:'--c4'},
+  {k:'Campaigns', v:'--c5'}
+];
+
+// ---- build unified month axis ----
+function monthsBetween(a,b){
+  const out=[]; let [y,m]=a.split('-').map(Number); const [ey,em]=b.split('-').map(Number);
+  while(y<ey || (y===ey && m<=em)){ out.push(y+'-'+String(m).padStart(2,'0')); m++; if(m>12){m=1;y++;} }
+  return out;
+}
+const ALL_MONTHS = monthsBetween('2023-12','2026-08');
+const MLAB = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtMonth = m => MLAB[Number(m.slice(5))-1] + ' ' + m.slice(2,4);
+const fmtMonthLong = m => MLAB[Number(m.slice(5))-1] + ' 20' + m.slice(2,4);
+const nf = n => n.toLocaleString('en-GB');
+
+// index data by month
+const D = {};
+PORTALS.forEach(p=>{
+  const rows = RAW[p.key], ch = RAW[p.key+'_ch'];
+  const byM = {};
+  rows.forEach(r=>{ byM[r[0]] = {visits:r[1],actions:r[2],bounces:r[3],pageviews:r[4],upv:r[5],secs:r[6],days:r[7]}; });
+  ch.forEach(c=>{ if(byM[c[0]]) byM[c[0]].ch = {'Direct Entry':c[1],'Search Engines':c[2],'Websites':c[3],'Social Networks':c[4],'Campaigns':c[5]}; });
+  // automated-traffic flag: high bounce AND overwhelmingly direct AND above-normal volume
+  Object.entries(byM).forEach(([m,d])=>{
+    const br = d.visits ? d.bounces/d.visits : 0;
+    const dir = d.ch && d.visits ? d.ch['Direct Entry']/d.visits : 0;
+    const apv = d.visits ? d.actions/d.visits : 0;
+    d.bounceRate = br; d.directShare = dir; d.apv = apv;
+    d.flag = (br>=.85 && dir>=.85 && d.visits>=120) ? 'bot'
+           : (apv>=15) ? 'crawl' : null;
+  });
+  D[p.key] = byM;
+});
+
+// ---- portal summary cards ----
+function summarise(key){
+  const byM = D[key];
+  const ms = Object.keys(byM).sort();
+  const total = ms.reduce((s,m)=>s+byM[m].visits,0);
+  const last12 = ALL_MONTHS.slice(-12), prev12 = ALL_MONTHS.slice(-24,-12);
+  const sum = arr => arr.reduce((s,m)=>s+(byM[m]?byM[m].visits:0),0);
+  const l = sum(last12), p = sum(prev12);
+  const peak = ms.reduce((a,m)=> byM[m].visits>byM[a].visits ? m : a, ms[0]);
+  const cleanPeak = ms.filter(m=>!byM[m].flag).reduce((a,m)=> byM[m].visits>byM[a].visits ? m : a, ms.find(m=>!byM[m].flag));
+  const actions = ms.reduce((s,m)=>s+byM[m].actions,0);
+  const bounces = ms.reduce((s,m)=>s+byM[m].bounces,0);
+  const secs = ms.reduce((s,m)=>s+byM[m].secs,0);
+  return {ms,total,l,p,delta:p? (l-p)/p : 0, peak, cleanPeak, actions, bounces, secs,
+          apv: actions/total, br: bounces/total, avgDur: secs/total, avgL12: l/12};
+}
+const S = {CONNECT:summarise('CONNECT'), MONITOR:summarise('MONITOR')};
+
+function sparkPath(key,w,h){
+  const byM=D[key]; const vals=ALL_MONTHS.map(m=>byM[m]?byM[m].visits:null);
+  const max=Math.max(...vals.filter(v=>v!==null));
+  const x=i=>i/(ALL_MONTHS.length-1)*w, y=v=>h-2-(v/max)*(h-6);
+  let d='',started=false, area='';
+  vals.forEach((v,i)=>{ if(v===null){started=false;return;}
+    d += (started?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)+' '; started=true; });
+  const first=vals.findIndex(v=>v!==null);
+  area = 'M'+x(first).toFixed(1)+' '+h+' ' + vals.map((v,i)=>v===null?'':'L'+x(i).toFixed(1)+' '+y(v).toFixed(1)+' ').join('') + 'L'+w+' '+h+' Z';
+  const lastI = vals.length-1;
+  return {d, area, lx:x(lastI), ly:y(vals[lastI])};
+}
+
+document.getElementById('portals').innerHTML = PORTALS.map((p,i)=>{
+  const s=S[p.key]; const sp=sparkPath(p.key,300,50);
+  const dn = s.delta<0;
+  const gid='g'+i;
+  return `<div class="pcard">
+    <div class="top">
+      <div>
+        <div class="ptitle"><span class="swatch" style="background:${p.color}"></span><span class="pname">${p.name}</span></div>
+        <div class="purl">${p.url}</div>
+      </div>
+      <span class="trend ${dn?'down':'up'}">${dn?'▼':'▲'} ${Math.abs(s.delta*100).toFixed(0)}% YoY</span>
+    </div>
+    <div>
+      <div class="hero"><span class="v">${nf(s.total)}</span><span class="u">visits, ${p.key==='CONNECT'?'Apr 2024':'Dec 2023'} – Aug 2026</span></div>
+      <svg class="spark" viewBox="0 0 300 50" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="${p.color}" stop-opacity=".22"/>
+          <stop offset="1" stop-color="${p.color}" stop-opacity="0"/></linearGradient></defs>
+        <path d="${sp.area}" fill="url(#${gid})"/>
+        <path d="${sp.d}" fill="none" stroke="${p.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${sp.lx.toFixed(1)}" cy="${sp.ly.toFixed(1)}" r="3.5" fill="${p.color}" stroke="var(--surface)" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="substats">
+      <div><div class="k">Last 12 months</div><div class="v">${nf(s.l)} <span style="font-size:.72rem;color:var(--ink-3)">vs ${nf(s.p)}</span></div></div>
+      <div><div class="k">Monthly average, L12M</div><div class="v">${s.avgL12.toFixed(0)}</div></div>
+      <div><div class="k">Actions per visit</div><div class="v">${s.apv.toFixed(1)}</div></div>
+      <div><div class="k">Bounce rate</div><div class="v">${(s.br*100).toFixed(0)}%</div></div>
+      <div><div class="k">Busiest month</div><div class="v" style="font-size:.92rem">${fmtMonthLong(s.peak)} · ${nf(D[p.key][s.peak].visits)}${D[p.key][s.peak].flag?' <span class="flagpill">flagged</span>':''}</div></div>
+      <div><div class="k">Avg. visit duration</div><div class="v">${Math.floor(s.avgDur/60)}m ${Math.round(s.avgDur%60)}s</div></div>
+    </div>
+  </div>`;
+}).join('');
+
+// ---------- shared chart helpers ----------
+const AX = {fill:'var(--ink-3)'};
+function el(tag,attrs,txt){
+  const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]);
+  if(txt!==undefined) e.textContent=txt;
+  return e;
+}
+function niceTicks(max,count){
+  const raw = max/count, mag = Math.pow(10,Math.floor(Math.log10(raw)));
+  const step = [1,2,2.5,5,10].map(s=>s*mag).find(s=>s>=raw) || 10*mag;
+  const out=[]; for(let v=0; v<=max+step*0.001; v+=step) out.push(v);
+  return out;
+}
+
+// ---------- visits line chart ----------
+let range='all', view='chart';
+function visibleMonths(){
+  if(range==='all') return ALL_MONTHS;
+  return ALL_MONTHS.slice(-Number(range));
+}
+const VC = {w:920,h:330,l:44,r:16,t:14,b:34};
+function drawVisits(){
+  const svg=document.getElementById('visitsChart'); svg.innerHTML='';
+  const ms=visibleMonths();
+  const plotW=VC.w-VC.l-VC.r, plotH=VC.h-VC.t-VC.b;
+  let max=0; PORTALS.forEach(p=>ms.forEach(m=>{ const d=D[p.key][m]; if(d&&d.visits>max)max=d.visits; }));
+  const ticks=niceTicks(max,5); const top=ticks[ticks.length-1];
+  const X = i => VC.l + (ms.length===1?plotW/2: i/(ms.length-1)*plotW);
+  const Y = v => VC.t + plotH - (v/top)*plotH;
+
+  ticks.forEach(t=>{
+    svg.appendChild(el('line',{x1:VC.l,x2:VC.w-VC.r,y1:Y(t),y2:Y(t),class:'gridline'}));
+    svg.appendChild(el('text',{x:VC.l-9,y:Y(t)+3.5,'text-anchor':'end',class:'axistext'}, nf(t)));
+  });
+  const every = ms.length>26?3:(ms.length>14?2:1);
+  ms.forEach((m,i)=>{ if(i%every!==0 && i!==ms.length-1) return;
+    svg.appendChild(el('text',{x:X(i),y:VC.h-VC.b+18,'text-anchor':'middle',class:'axistext'}, fmtMonth(m))); });
+
+  PORTALS.forEach(p=>{
+    const pts=ms.map((m,i)=>({i,m,d:D[p.key][m]}));
+    let seg=[], segs=[];
+    pts.forEach(pt=>{ if(pt.d){seg.push(pt);} else {if(seg.length)segs.push(seg); seg=[];} });
+    if(seg.length)segs.push(seg);
+    segs.forEach(s=>{
+      const d = s.map((pt,j)=>(j?'L':'M')+X(pt.i).toFixed(1)+' '+Y(pt.d.visits).toFixed(1)).join(' ');
+      svg.appendChild(el('path',{d,fill:'none',stroke:p.color,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+    });
+    pts.forEach(pt=>{ if(!pt.d) return;
+      if(pt.d.flag==='bot'){
+        svg.appendChild(el('circle',{cx:X(pt.i),cy:Y(pt.d.visits),r:6,fill:'none',stroke:'var(--warn)','stroke-width':2}));
+      }
+    });
+    // endpoint marker + direct label
+    const last=pts.filter(x=>x.d).pop();
+    if(last){
+      svg.appendChild(el('circle',{cx:X(last.i),cy:Y(last.d.visits),r:4,fill:p.color,stroke:'var(--surface)','stroke-width':2}));
+    }
+  });
+
+  // hover layer
+  const hv = el('line',{x1:0,x2:0,y1:VC.t,y2:VC.t+plotH,stroke:'var(--line-strong)','stroke-width':1,opacity:0});
+  svg.appendChild(hv);
+  const dots = PORTALS.map(p=>{ const c=el('circle',{r:5,fill:p.color,stroke:'var(--surface)','stroke-width':2,opacity:0}); svg.appendChild(c); return c; });
+  const overlay = el('rect',{x:VC.l,y:VC.t,width:plotW,height:plotH,fill:'transparent'});
+  svg.appendChild(overlay);
+  const tip=document.getElementById('visitsTip'), box=document.getElementById('visitsBox');
+  function move(ev){
+    const r=svg.getBoundingClientRect();
+    const px=(ev.clientX-r.left)/r.width*VC.w;
+    let i=Math.round((px-VC.l)/plotW*(ms.length-1)); i=Math.max(0,Math.min(ms.length-1,i));
+    const m=ms[i]; hv.setAttribute('x1',X(i)); hv.setAttribute('x2',X(i)); hv.setAttribute('opacity',1);
+    let rows='', anyFlag=null;
+    PORTALS.forEach((p,k)=>{ const d=D[p.key][m];
+      if(d){ dots[k].setAttribute('cx',X(i)); dots[k].setAttribute('cy',Y(d.visits)); dots[k].setAttribute('opacity',1);
+        rows+=`<div class="row"><span class="lbl"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${p.color}"></i>${p.key}</span><span class="val">${nf(d.visits)}</span></div>`;
+        if(d.flag)anyFlag=d.flag;
+      } else { dots[k].setAttribute('opacity',0);
+        rows+=`<div class="row"><span class="lbl"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${p.color}"></i>${p.key}</span><span class="val" style="color:var(--ink-3)">—</span></div>`; }
+    });
+    tip.innerHTML=`<div class="th">${fmtMonthLong(m)}</div>${rows}`+(anyFlag?`<div class="note">${anyFlag==='bot'?'Automated-traffic signature':'Unusually deep session — likely a crawler'}</div>`:'');
+    tip.style.opacity=1;
+    const bx=box.getBoundingClientRect();
+    const relX=X(i)/VC.w*bx.width;
+    tip.style.left=Math.min(Math.max(relX+14,0), bx.width-tip.offsetWidth-2)+'px';
+    tip.style.top=(VC.t/VC.h*bx.height)+'px';
+  }
+  overlay.addEventListener('mousemove',move);
+  overlay.addEventListener('mouseleave',()=>{tip.style.opacity=0;hv.setAttribute('opacity',0);dots.forEach(d=>d.setAttribute('opacity',0));});
+}
+document.getElementById('visitsLegend').innerHTML =
+  PORTALS.map(p=>`<span><i style="background:${p.color}"></i>${p.key}</span>`).join('') +
+  `<span><i class="sq" style="background:transparent;border:2px solid var(--warn);border-radius:50%"></i>Month with automated-traffic signature</span>`;
+
+function drawVisitsTable(){
+  const ms=visibleMonths();
+  let h='<table><thead><tr><th>Month</th><th>CONNECT visits</th><th>CONNECT actions</th><th>MONITOR visits</th><th>MONITOR actions</th><th>Combined visits</th></tr></thead><tbody>';
+  ms.forEach(m=>{
+    const c=D.CONNECT[m], mo=D.MONITOR[m];
+    const tot=(c?c.visits:0)+(mo?mo.visits:0);
+    h+=`<tr><td>${fmtMonthLong(m)}${(c&&c.flag)||(mo&&mo.flag)?' <span class="flagpill">flagged</span>':''}</td>
+      <td class="n">${c?nf(c.visits):'—'}</td><td class="n">${c?nf(c.actions):'—'}</td>
+      <td class="n">${mo?nf(mo.visits):'—'}</td><td class="n">${mo?nf(mo.actions):'—'}</td>
+      <td class="n">${nf(tot)}</td></tr>`;
+  });
+  document.getElementById('visitsTable').innerHTML=h+'</tbody></table>';
+}
+
+document.querySelectorAll('[data-range]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-range]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  range=b.dataset.range; drawVisits(); drawVisitsTable(); drawDepth();
+}));
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-view]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  view=b.dataset.view;
+  document.getElementById('visitsBox').hidden = view!=='chart';
+  document.getElementById('visitsLegend').hidden = view!=='chart';
+  document.getElementById('visitsTable').hidden = view!=='table';
+}));
+
+// ---------- depth chart (actions per visit) ----------
+const DC={w:920,h:260,l:44,r:16,t:14,b:34};
+function drawDepth(){
+  const svg=document.getElementById('depthChart'); svg.innerHTML='';
+  const ms=visibleMonths(); const plotW=DC.w-DC.l-DC.r, plotH=DC.h-DC.t-DC.b;
+  let max=0; PORTALS.forEach(p=>ms.forEach(m=>{const d=D[p.key][m]; if(d&&d.apv>max)max=d.apv;}));
+  max=Math.min(max,20); // cap: Jan 2026 CONNECT outlier is annotated instead
+  const ticks=niceTicks(max,4), top=ticks[ticks.length-1];
+  const X=i=>DC.l+(ms.length===1?plotW/2:i/(ms.length-1)*plotW), Y=v=>DC.t+plotH-(Math.min(v,top)/top)*plotH;
+  ticks.forEach(t=>{ svg.appendChild(el('line',{x1:DC.l,x2:DC.w-DC.r,y1:Y(t),y2:Y(t),class:'gridline'}));
+    svg.appendChild(el('text',{x:DC.l-9,y:Y(t)+3.5,'text-anchor':'end',class:'axistext'},t.toFixed(0))); });
+  const every=ms.length>26?3:(ms.length>14?2:1);
+  ms.forEach((m,i)=>{ if(i%every!==0&&i!==ms.length-1)return;
+    svg.appendChild(el('text',{x:X(i),y:DC.h-DC.b+18,'text-anchor':'middle',class:'axistext'},fmtMonth(m))); });
+  PORTALS.forEach(p=>{
+    const pts=ms.map((m,i)=>({i,m,d:D[p.key][m]}));
+    let seg=[],segs=[];
+    pts.forEach(pt=>{ if(pt.d)seg.push(pt); else {if(seg.length)segs.push(seg);seg=[];} });
+    if(seg.length)segs.push(seg);
+    segs.forEach(s=>{ const d=s.map((pt,j)=>(j?'L':'M')+X(pt.i).toFixed(1)+' '+Y(pt.d.apv).toFixed(1)).join(' ');
+      svg.appendChild(el('path',{d,fill:'none',stroke:p.color,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'})); });
+    pts.forEach(pt=>{ if(pt.d && pt.d.apv>top){
+      svg.appendChild(el('circle',{cx:X(pt.i),cy:Y(top),r:5,fill:'none',stroke:'var(--warn)','stroke-width':2}));
+      svg.appendChild(el('text',{x:X(pt.i),y:Y(top)-11,'text-anchor':'middle',class:'axistext',fill:'var(--warn-ink)'},pt.d.apv.toFixed(0)));
+    }});
+  });
+  const hv=el('line',{x1:0,x2:0,y1:DC.t,y2:DC.t+plotH,stroke:'var(--line-strong)','stroke-width':1,opacity:0}); svg.appendChild(hv);
+  const dots=PORTALS.map(p=>{const c=el('circle',{r:5,fill:p.color,stroke:'var(--surface)','stroke-width':2,opacity:0});svg.appendChild(c);return c;});
+  const overlay=el('rect',{x:DC.l,y:DC.t,width:plotW,height:plotH,fill:'transparent'}); svg.appendChild(overlay);
+  const tip=document.getElementById('depthTip'), box=document.getElementById('depthBox');
+  overlay.addEventListener('mousemove',ev=>{
+    const r=svg.getBoundingClientRect(); const px=(ev.clientX-r.left)/r.width*DC.w;
+    let i=Math.round((px-DC.l)/plotW*(ms.length-1)); i=Math.max(0,Math.min(ms.length-1,i));
+    const m=ms[i]; hv.setAttribute('x1',X(i)); hv.setAttribute('x2',X(i)); hv.setAttribute('opacity',1);
+    let rows='';
+    PORTALS.forEach((p,k)=>{ const d=D[p.key][m];
+      if(d){ dots[k].setAttribute('cx',X(i)); dots[k].setAttribute('cy',Y(d.apv)); dots[k].setAttribute('opacity',1);
+        rows+=`<div class="row"><span class="lbl"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${p.color}"></i>${p.key}</span><span class="val">${d.apv.toFixed(1)}</span></div>`;
+      } else { dots[k].setAttribute('opacity',0);
+        rows+=`<div class="row"><span class="lbl"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${p.color}"></i>${p.key}</span><span class="val" style="color:var(--ink-3)">—</span></div>`; }
+    });
+    tip.innerHTML=`<div class="th">${fmtMonthLong(m)} · actions per visit</div>${rows}`;
+    tip.style.opacity=1;
+    const bx=box.getBoundingClientRect(); const relX=X(i)/DC.w*bx.width;
+    tip.style.left=Math.min(Math.max(relX+14,0),bx.width-tip.offsetWidth-2)+'px';
+    tip.style.top=(DC.t/DC.h*bx.height)+'px';
+  });
+  overlay.addEventListener('mouseleave',()=>{tip.style.opacity=0;hv.setAttribute('opacity',0);dots.forEach(d=>d.setAttribute('opacity',0));});
+}
+document.getElementById('depthLegend').innerHTML =
+  PORTALS.map(p=>`<span><i style="background:${p.color}"></i>${p.key}</span>`).join('') +
+  `<span style="color:var(--ink-3)">Scale capped at 20; a capped month is ringed and its true value printed.</span>`;
+
+// ---------- channel share ----------
+function drawChannels(key,svgId,tipId,boxId){
+  const svg=document.getElementById(svgId); svg.innerHTML='';
+  const W=440,H=230,L=30,R=8,T=10,B=28;
+  const ms=ALL_MONTHS.filter(m=>D[key][m] && D[key][m].ch);
+  const plotW=W-L-R, plotH=H-T-B;
+  const bw=Math.max(2,plotW/ms.length-2);
+  [0,25,50,75,100].forEach(t=>{
+    const y=T+plotH-(t/100)*plotH;
+    svg.appendChild(el('line',{x1:L,x2:W-R,y1:y,y2:y,class:'gridline'}));
+    svg.appendChild(el('text',{x:L-6,y:y+3.5,'text-anchor':'end',class:'axistext'},t+'%'));
+  });
+  const every=Math.ceil(ms.length/6);
+  ms.forEach((m,i)=>{
+    const d=D[key][m], tot=CH.reduce((s,c)=>s+d.ch[c.k],0)||1;
+    let acc=0;
+    const x=L+i/ms.length*plotW+1;
+    CH.forEach(c=>{
+      const v=d.ch[c.k]; if(!v) return;
+      const h=(v/tot)*plotH;
+      const y=T+plotH-acc-h;
+      svg.appendChild(el('rect',{x:x.toFixed(1),y:(y+1).toFixed(1),width:bw.toFixed(1),height:Math.max(0.5,h-2).toFixed(1),
+        fill:`var(${c.v})`,rx:1}));
+      acc+=h;
+    });
+    if(i%every===0 ? (i!==ms.length-1 || true) : i===ms.length-1)
+      if(i%every===0 || (ms.length-1-Math.floor((ms.length-1)/every)*every)>=Math.ceil(every/2))
+        svg.appendChild(el('text',{x:(x+bw/2).toFixed(1),y:H-B+16,'text-anchor':'middle',class:'axistext'},fmtMonth(m)));
+    const hit=el('rect',{x:x.toFixed(1),y:T,width:bw.toFixed(1),height:plotH,fill:'transparent'});
+    hit.style.cursor='crosshair';
+    const tip=document.getElementById(tipId), box=document.getElementById(boxId);
+    hit.addEventListener('mouseenter',()=>{
+      let rows=CH.filter(c=>d.ch[c.k]).map(c=>`<div class="row"><span class="lbl"><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(${c.v})"></i>${c.k}</span><span class="val">${d.ch[c.k]} · ${Math.round(d.ch[c.k]/tot*100)}%</span></div>`).join('');
+      tip.innerHTML=`<div class="th">${fmtMonthLong(m)} · ${tot} visits</div>${rows}`;
+      tip.style.opacity=1;
+      const bx=box.getBoundingClientRect(); const relX=(x+bw/2)/W*bx.width;
+      tip.style.left=Math.min(Math.max(relX-tip.offsetWidth/2,0),bx.width-tip.offsetWidth-2)+'px';
+      tip.style.top='2px';
+    });
+    hit.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
+    svg.appendChild(hit);
+  });
+}
+document.getElementById('chLegend').innerHTML = CH.map(c=>`<span><i class="sq" style="background:var(${c.v})"></i>${c.k}</span>`).join('');
+
+// ---------- pages ----------
+function classifyPage(label){
+  if(/^\/user-info\?errorCode/.test(label)) return 'callback';
+  if(/^\/\?verify=/.test(label)) return 'callback';
+  if(/authCode=/.test(label)) return 'callback';
+  if(/^\/\?previewLayout=/.test(label)) return 'preview';
+  return 'page';
+}
+const NICE = {
+  'search':['Search results','Discover Aurora publications, datasets, software'],
+  '/index':['Gateway home','aurora.openaire.eu landing page'],
+  'participate':['Participate / link','Claim outputs and link them to projects'],
+  '/organizations':['Organizations','Aurora partner institutions'],
+  '/fields-of-science':['Fields of science',''],
+  '/sdgs':['Sustainable Development Goals',''],
+  '/curators':['Curators',''],
+  '/content':['Content sources',''],
+  '/my-orcid-links':['My ORCID links',''],
+  '/myclaims':['My claims',''],
+  '/projects':['Projects','']
+};
+(function(){
+  const rows=RAW.pages;
+  const groups={callback:{upv:0,pv:0,ent:0,n:0},preview:{upv:0,pv:0,ent:0,n:0}};
+  const keep=[];
+  rows.forEach(r=>{
+    const c=classifyPage(r[0]);
+    if(c==='page'){ keep.push(r); }
+    else { groups[c].upv+=r[1]; groups[c].pv+=r[2]; groups[c].ent+=r[3]; groups[c].n++; }
+  });
+  keep.sort((a,b)=>b[1]-a[1]);
+  const max=keep[0][1];
+  let h='<table><thead><tr><th>Page</th><th class="barcell">Unique pageviews</th><th></th><th>Pageviews</th><th>Entrances</th><th>Bounce</th><th>Avg. time</th></tr></thead><tbody>';
+  keep.forEach(r=>{
+    const n=NICE[r[0]]||[r[0],''];
+    h+=`<tr><td class="pathcell">${n[0]}${n[1]?`<small>${n[1]}</small>`:''}<small style="color:var(--ink-3);font-family:'IBM Plex Mono',monospace">${r[0]}</small></td>
+      <td class="barcell"><div class="bar" style="width:${Math.max(2,r[1]/max*100)}%"></div></td>
+      <td class="n">${nf(r[1])}</td><td class="n">${nf(r[2])}</td><td class="n">${nf(r[3])}</td><td class="n">${r[5]}</td><td class="n">${r[6]}</td></tr>`;
+  });
+  h+=`<tr><td class="pathcell">Login &amp; claim callbacks<small>OAuth / e-mail verification redirects across ${groups.callback.n} distinct URLs — transit, not destinations</small></td>
+    <td class="barcell"><div class="bar" style="width:${Math.max(2,groups.callback.upv/max*100)}%;background:var(--ink-3)"></div></td>
+    <td class="n">${nf(groups.callback.upv)}</td><td class="n">${nf(groups.callback.pv)}</td><td class="n">${nf(groups.callback.ent)}</td><td class="n">—</td><td class="n">—</td></tr>`;
+  h+=`<tr><td class="pathcell">Layout previews<small>Portal-configuration previews across ${groups.preview.n} URLs — internal admin activity</small></td>
+    <td class="barcell"><div class="bar" style="width:${Math.max(2,groups.preview.upv/max*100)}%;background:var(--ink-3)"></div></td>
+    <td class="n">${nf(groups.preview.upv)}</td><td class="n">${nf(groups.preview.pv)}</td><td class="n">${nf(groups.preview.ent)}</td><td class="n">—</td><td class="n">—</td></tr>`;
+  document.getElementById('pagesTable').innerHTML=h+'</tbody></table>';
+})();
+
+(function(){
+  const p=RAW.mpage;
+  document.getElementById('monitorPage').innerHTML=`
+  <p style="margin:0 0 14px;font-size:.9rem;color:var(--ink-2)">The MONITOR dashboard is a single-page application: Matomo records the whole indicator dashboard under one URL, so there is no page-level breakdown to show. Everything below describes one page.</p>
+  <div class="substats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+    <div><div class="k">Unique pageviews</div><div class="v">${nf(p.upv)}</div></div>
+    <div><div class="k">Pageviews</div><div class="v">${nf(p.pv)}</div></div>
+    <div><div class="k">Entrances</div><div class="v">${nf(p.entrances)}</div></div>
+    <div><div class="k">Bounce rate</div><div class="v">${p.bounce}</div></div>
+    <div><div class="k">Avg. time on page</div><div class="v">${p.avgtime}</div></div>
+  </div>
+  <p style="margin:14px 0 0;font-size:.86rem;color:var(--ink-2)">To get flow inside MONITOR &mdash; which indicator tabs get used &mdash; the dashboard would need Matomo event or virtual-pageview tracking on tab changes. That is a development request to the OpenAIRE MONITOR team, not an export setting.</p>`;
+})();
+
+// ---------- geography ----------
+const AURORA = {
+  at:'University of Innsbruck', cz:'Palacký University Olomouc', dk:'Copenhagen Business School',
+  fr:'Paris-East Créteil University', de:'University of Duisburg-Essen', is:'University of Iceland',
+  it:'University of Naples Federico II', nl:'Vrije Universiteit Amsterdam',
+  es:'University of Rovira i Virgili', us:'University of Minnesota'
+};
+const AURORA_CITY = {'Créteil':'Paris-East Créteil','Amsterdam':'VU Amsterdam','Reykjavik':'University of Iceland',
+  'Innsbruck':'University of Innsbruck','Olomouc':'Palacký University','Naples':'Federico II','Napoli':'Federico II',
+  'Tarragona':'Rovira i Virgili','Copenhagen':'Copenhagen Business School','Essen':'Duisburg-Essen','Duisburg':'Duisburg-Essen',
+  'Minneapolis':'University of Minnesota'};
+const OPSITE = {'Pisa':'OpenAIRE technical site (ISTI–CNR)','Athens':'OpenAIRE coordinator (ATHENA RC)',
+  'Marousi':'OpenAIRE coordinator (ATHENA RC)','Athens (Ampelokipoi)':'OpenAIRE coordinator (ATHENA RC)'};
+const DCNAMES = ['Ashburn','Dublin','Frankfurt am Main','Council Bluffs','Boardman','The Dalles','Singapore','Columbus'];
+let geoKey='CONNECT';
+
+function renderGeo(){
+  const ctry = RAW[geoKey+'_country'], city = RAW[geoKey+'_city'];
+  const total = ctry.reduce((s,c)=>s+c[2],0);
+  const partner = ctry.filter(c=>AURORA[c[1]]).reduce((s,c)=>s+c[2],0);
+  const gr = (ctry.find(c=>c[1]==='gr')||[,,0])[2];
+  const opCity = city.filter(c=>OPSITE[c[0]]).reduce((s,c)=>s+c[3],0);
+  const other = total-partner-gr;
+  const pct = v => (v/total*100);
+
+  document.getElementById('geoSplit').innerHTML = `
+    <div style="display:flex;height:26px;border-radius:6px;overflow:hidden;gap:2px;margin:16px 0 12px">
+      <div title="Aurora member countries" style="width:${pct(partner)}%;background:var(--c1)"></div>
+      <div title="Greece (OpenAIRE coordinator)" style="width:${pct(gr)}%;background:var(--c4)"></div>
+      <div title="Everywhere else" style="width:${pct(other)}%;background:var(--line-strong)"></div>
+    </div>
+    <div class="substats" style="grid-template-columns:1fr">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+        <span class="k" style="text-transform:none;font-size:.82rem;color:var(--ink-2)"><span class="swatch" style="display:inline-block;background:var(--c1);margin-right:7px"></span>Aurora member countries</span>
+        <span class="v" style="font-size:.98rem">${nf(partner)} <span style="color:var(--ink-3);font-size:.8rem">${pct(partner).toFixed(0)}%</span></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+        <span class="k" style="text-transform:none;font-size:.82rem;color:var(--ink-2)"><span class="swatch" style="display:inline-block;background:var(--c4);margin-right:7px"></span>Greece &mdash; OpenAIRE&rsquo;s own coordinator</span>
+        <span class="v" style="font-size:.98rem">${nf(gr)} <span style="color:var(--ink-3);font-size:.8rem">${pct(gr).toFixed(0)}%</span></span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">
+        <span class="k" style="text-transform:none;font-size:.82rem;color:var(--ink-2)"><span class="swatch" style="display:inline-block;background:var(--line-strong);margin-right:7px"></span>Everywhere else &mdash; ${ctry.length-ctry.filter(c=>AURORA[c[1]]).length-1} countries</span>
+        <span class="v" style="font-size:.98rem">${nf(other)} <span style="color:var(--ink-3);font-size:.8rem">${pct(other).toFixed(0)}%</span></span></div>
+    </div>
+    <p style="margin:14px 0 0;font-size:.84rem;color:var(--ink-2)">The Aurora share is an <b>upper bound</b>, not a clean figure. ${nf(opCity)} of these visits resolve to Pisa, Athens and Marousi &mdash; OpenAIRE&rsquo;s own technical and coordinating sites, i.e. the people who build and run the portals${geoKey==='CONNECT'?', and Italy counts as an Aurora country because of Naples':''}. The US total is dominated by cloud data centres rather than by Minnesota.</p>`;
+
+  let h='<table><thead><tr><th>Member university</th><th>Country</th><th>Visits</th><th>Share</th></tr></thead><tbody>';
+  Object.entries(AURORA).map(([code,uni])=>{
+    const row=ctry.find(c=>c[1]===code);
+    return {code,uni,name:row?row[0]:'—',v:row?row[2]:0};
+  }).sort((a,b)=>b.v-a.v).forEach(r=>{
+    h+=`<tr><td style="font-size:.82rem">${r.uni}</td><td style="text-align:right;color:var(--ink-3);font-size:.82rem">${r.name}</td>
+      <td class="n">${r.v?nf(r.v):'<span style="color:var(--ink-3)">0</span>'}</td>
+      <td class="n" style="color:var(--ink-3)">${r.v?pct(r.v).toFixed(1)+'%':'—'}</td></tr>`;
+  });
+  h+=`<tr style="border-top:2px solid var(--line-strong)"><td><b>Total, member countries</b></td><td></td><td class="n"><b>${nf(partner)}</b></td><td class="n"><b>${pct(partner).toFixed(0)}%</b></td></tr>`;
+  document.getElementById('partnerTable').innerHTML=h+'</tbody></table>';
+
+  const cmax=ctry[0][2];
+  h='<table><thead><tr><th>Country</th><th class="barcell"></th><th>Visits</th><th>Actions / visit</th><th>Bounce</th></tr></thead><tbody>';
+  ctry.slice(0,14).forEach(c=>{
+    const isA=!!AURORA[c[1]];
+    const br=c[4]/c[2];
+    const auto = br>=.85 && c[2]>=30;
+    h+=`<tr><td>${c[0]} ${isA?'<span class="flagpill" title="'+AURORA[c[1]]+'" style="background:color-mix(in srgb,var(--c1) 14%,transparent);color:var(--c1);border-color:color-mix(in srgb,var(--c1) 40%,transparent)">A</span>':''}${auto?'<span class="flagpill" title="Bounce rate above 85% with about one action per visit — the signature of automated traffic">mostly automated</span>':''}</td>
+      <td class="barcell"><div class="bar" style="width:${Math.max(2,c[2]/cmax*100)}%;background:${isA?'var(--c1)':'var(--line-strong)'}"></div></td>
+      <td class="n">${nf(c[2])}</td><td class="n">${(c[3]/c[2]).toFixed(1)}</td><td class="n"${auto?' style="color:var(--warn-ink)"':''}>${Math.round(br*100)}%</td></tr>`;
+  });
+  h+=`<tr><td style="color:var(--ink-3)">${ctry.length-14} further countries</td><td></td><td class="n">${nf(ctry.slice(14).reduce((s,c)=>s+c[2],0))}</td><td class="n">—</td><td class="n">—</td></tr>`;
+  document.getElementById('countryTable').innerHTML=h+'</tbody></table>';
+
+  const citmax=city[0][3];
+  h='<table><thead><tr><th>City</th><th class="barcell"></th><th>Visits</th><th>Bounce</th></tr></thead><tbody>';
+  city.slice(0,16).forEach(c=>{
+    const br=c[3]?c[5]/c[3]:0;
+    const op=OPSITE[c[0]];
+    const dc=!op && (DCNAMES.includes(c[0]) || (br>=.9 && c[3]>=15));
+    const au=!op && !dc && AURORA_CITY[c[0]];
+    let tag='';
+    if(op) tag=`<small style="color:var(--warn-ink)">${op}</small>`;
+    else if(dc) tag=`<small style="color:var(--warn-ink)">Cloud data centre &mdash; likely automated</small>`;
+    else if(au) tag=`<small style="color:var(--c1)">${au} &mdash; Aurora member</small>`;
+    h+=`<tr><td class="pathcell" style="font-family:'IBM Plex Sans',sans-serif">${c[0]}, ${c[1]}${tag}</td>
+      <td class="barcell"><div class="bar" style="width:${Math.max(2,c[3]/citmax*100)}%;background:${au?'var(--c1)':(op||dc)?'var(--warn)':'var(--line-strong)'}"></div></td>
+      <td class="n">${nf(c[3])}</td><td class="n">${Math.round(br*100)}%</td></tr>`;
+  });
+  document.getElementById('cityTable').innerHTML=h+'</tbody></table>';
+}
+document.querySelectorAll('[data-geo]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-geo]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  geoKey=b.dataset.geo; renderGeo();
+}));
+renderGeo();
+
+// ---------- notes ----------
+(function(){
+  const c=S.CONNECT, m=S.MONITOR;
+  const botMonths=[];
+  PORTALS.forEach(p=>Object.entries(D[p.key]).forEach(([mm,d])=>{ if(d.flag==='bot') botMonths.push(p.key+' '+fmtMonthLong(mm)); }));
+  const crawl=[];
+  PORTALS.forEach(p=>Object.entries(D[p.key]).forEach(([mm,d])=>{ if(d.flag==='crawl') crawl.push(`${p.key} ${fmtMonthLong(mm)} (${d.apv.toFixed(0)} actions per visit)`); }));
+  document.getElementById('notes').innerHTML=`
+  <dt>&ldquo;Unique visitors&rdquo; is not usable</dt>
+  <dd>Across 554 CONNECT and 333 MONITOR daily rows, unique visitors equals visits equals new visits in every single row. Visitor recognition is not working on these properties, most likely a privacy or cookie setting in the Matomo configuration. Until it is fixed, no return-visitor or unique-audience figure can be produced from this data, and the two columns must not be presented as separate metrics.</dd>
+
+  <dt>Two CONNECT months carry an automated-traffic signature</dt>
+  <dd>${botMonths.join(' and ')} sit far above every neighbouring month while running roughly 90% bounce and roughly 90% direct entry &mdash; the pattern of a crawler, not of people. ${botMonths.length?'They are ringed in the chart and marked in the table.':''} Excluding them, the genuine CONNECT high point is ${fmtMonthLong(c.cleanPeak)} at ${nf(D.CONNECT[c.cleanPeak].visits)} visits. Quoting the raw peak to the committee would overstate uptake.</dd>
+
+  <dt>One month has an implausible action count</dt>
+  <dd>${crawl.join('; ')}. A handful of visits generating hundreds of actions is a crawler or an automated test, not engagement. The depth chart caps its y-scale and prints the true value rather than letting one point flatten every other month.</dd>
+
+  <dt>Visits are small in absolute terms</dt>
+  <dd>Both portals operate in the tens-to-low-hundreds of visits per month. Over the last twelve months CONNECT averaged ${c.avgL12.toFixed(0)} visits per month and MONITOR ${m.avgL12.toFixed(0)}. At this scale, a single workshop, newsletter or crawler visibly moves the line, and percentage changes are volatile by construction. Present absolute counts alongside any percentage.</dd>
+
+  <dt>The trend is down, on both portals</dt>
+  <dd>Last twelve months against the twelve before: CONNECT ${nf(c.l)} vs ${nf(c.p)} visits (${(c.delta*100).toFixed(0)}%), MONITOR ${nf(m.l)} vs ${nf(m.p)} (${(m.delta*100).toFixed(0)}%). The decline begins around November 2025 on both portals simultaneously, which is worth checking against the OpenAIRE side: a simultaneous drop on two independent properties can equally be a tracking change (a Matomo upgrade, a consent-banner change, a bot filter switched on) as a genuine loss of audience. Confirm before interpreting it as a fall in uptake.</dd>
+
+  <dt>Dates and coverage</dt>
+  <dd>MONITOR data starts 1 Dec 2023, CONNECT data starts 25 Apr 2024, both run to 31 Aug 2026. Months are calendar months built from the daily exports. Days with no traffic are absent from the source and are treated as zero; months entirely absent appear as gaps in the lines rather than as zeros.</dd>
+
+  <dt>A large share of traffic is the project&rsquo;s own team</dt>
+  <dd>Pisa is the top city on CONNECT and third on MONITOR; Marousi and Athens are close behind. Those are ISTI&ndash;CNR and ATHENA Research Center &mdash; OpenAIRE&rsquo;s technical operator and coordinator, not Aurora institutions. Créteil (Paris-East Créteil) is the one Aurora member that shows sustained, deep use: top city on MONITOR, second on CONNECT, with well-above-average session depth. Six of the ten member universities register barely any traffic at all. That, rather than the headline totals, is the uptake story.</dd>
+
+  <dt>Geography is period totals, not monthly</dt>
+  <dd>The country and city exports cover 15 Apr 2024 &ndash; 31 Aug 2026 as one lump, so they cannot be broken down by month, and MONITOR&rsquo;s first four months (Dec 2023 &ndash; Apr 2024) are outside them: geographic totals for MONITOR are 1,257 visits against 1,455 in the monthly series. City is inferred from IP address; at these volumes most city rows are single-digit, and rows resolving to cloud data centres (Ashburn, Dublin, Frankfurt) are machines, not people.</dd>
+
+  <dt>Not measured here</dt>
+  <dd>Downloads, outlinks and site searches are present in the Matomo export but are effectively zero on both portals across the whole period, so they are not charted. Conversions and goals are not configured.</dd>`;
+})();
+
+drawVisits(); drawVisitsTable(); drawDepth();
+drawChannels('CONNECT','chConnect','chConnectTip','chConnectBox');
+drawChannels('MONITOR','chMonitor','chMonitorTip','chMonitorBox');
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawVisits();drawDepth();
+  drawChannels('CONNECT','chConnect','chConnectTip','chConnectBox');
+  drawChannels('MONITOR','chMonitor','chMonitorTip','chMonitorBox');},180);});
+</script>
