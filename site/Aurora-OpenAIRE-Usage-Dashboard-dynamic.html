@@ -376,9 +376,24 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
 </footer>
 </div>
 
+<script type="importmap">
+{
+  "imports": {
+    "apache-arrow": "https://cdn.jsdelivr.net/npm/apache-arrow@17.0.0/+esm"
+  }
+}
+</script>
 <script>
 async function loadRAW(){
-  const duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/duckdb-browser.mjs');
+  // duckdb-browser.mjs contains bare `import ... from "apache-arrow"` specifiers
+  // (apache-arrow is a real dependency, not bundled into this file) that plain
+  // browser ESM can't resolve on its own. The "/+esm" suffix asks jsDelivr to
+  // rewrite those nested bare imports to resolvable CDN URLs itself; the import
+  // map above is a second, direct mapping for the same specifier in case any
+  // nested import isn't rewritten. Confirmed by inspecting the published
+  // 1.30.0 package locally: dist/duckdb-browser.mjs literally contains
+  // `import * as u from"apache-arrow"` — it is not bundled in.
+  const duckdb = await import('https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.30.0/dist/duckdb-browser.mjs/+esm');
   const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
   const workerUrl = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], {type:'text/javascript'}));
   const worker = new Worker(workerUrl);
