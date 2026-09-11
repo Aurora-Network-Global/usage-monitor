@@ -123,6 +123,8 @@ section{margin-bottom:34px}
 .substats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-radius:9px;overflow:hidden}
 .substats div{background:var(--surface);padding:11px 13px}
 .substats .k{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.substats .k[title],thead th[title]{text-decoration:underline dotted;text-decoration-color:var(--ink-3);
+  text-underline-offset:3px;cursor:help}
 .substats .v{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:1.05rem;font-weight:500;margin-top:2px}
 .trend{font-family:"IBM Plex Mono",monospace;font-size:.78rem;padding:3px 8px;border-radius:999px;white-space:nowrap}
 .trend.down{background:var(--crit-bg);color:var(--crit)}
@@ -577,7 +579,7 @@ document.getElementById('portals').innerHTML = PORTALS.map((p,i)=>{
       <div><div class="k">Last 12 months</div><div class="v">${nf(s.l)} <span style="font-size:.72rem;color:var(--ink-3)">vs ${nf(s.p)}</span></div></div>
       <div><div class="k">Monthly average, L12M</div><div class="v">${s.avgL12.toFixed(0)}</div></div>
       <div><div class="k">Actions per visit</div><div class="v">${s.apv.toFixed(1)}</div></div>
-      <div><div class="k">Bounce rate</div><div class="v">${(s.br*100).toFixed(0)}%</div></div>
+      <div><div class="k" title="Share of visits that left after just the landing page &mdash; no second pageview or tracked click.">Bounce rate</div><div class="v">${(s.br*100).toFixed(0)}%</div></div>
       <div><div class="k">Busiest month</div><div class="v" style="font-size:.92rem">${fmtMonthLong(s.peak)} · ${nf(D[p.key][s.peak].visits)}${D[p.key][s.peak].flag?' <span class="flagpill">flagged</span>':''}</div></div>
       <div><div class="k">Avg. visit duration</div><div class="v">${Math.floor(s.avgDur/60)}m ${Math.round(s.avgDur%60)}s</div></div>
     </div>
@@ -834,7 +836,7 @@ const NICE = {
   });
   keep.sort((a,b)=>b[1]-a[1]);
   const max=keep[0][1];
-  let h='<table><thead><tr><th>Page</th><th class="barcell">Unique pageviews</th><th></th><th>Pageviews</th><th>Entrances</th><th>Bounce</th><th>Avg. time</th></tr></thead><tbody>';
+  let h='<table><thead><tr><th>Page</th><th class="barcell">Unique pageviews</th><th></th><th>Pageviews</th><th>Entrances</th><th title="Share of visits that left after just the landing page &mdash; no second pageview or tracked click.">Bounce</th><th>Avg. time</th></tr></thead><tbody>';
   keep.forEach(r=>{
     const n=NICE[r[0]]||[r[0],''];
     h+=`<tr><td class="pathcell">${n[0]}${n[1]?`<small>${n[1]}</small>`:''}<small style="color:var(--ink-3);font-family:'IBM Plex Mono',monospace">${r[0]}</small></td>
@@ -858,7 +860,7 @@ const NICE = {
     <div><div class="k">Unique pageviews</div><div class="v">${nf(p.upv)}</div></div>
     <div><div class="k">Pageviews</div><div class="v">${nf(p.pv)}</div></div>
     <div><div class="k">Entrances</div><div class="v">${nf(p.entrances)}</div></div>
-    <div><div class="k">Bounce rate</div><div class="v">${p.bounce}</div></div>
+    <div><div class="k" title="Share of visits that left after just the landing page &mdash; no second pageview or tracked click.">Bounce rate</div><div class="v">${p.bounce}</div></div>
     <div><div class="k">Avg. time on page</div><div class="v">${p.avgtime}</div></div>
   </div>
   <p style="margin:14px 0 0;font-size:.86rem;color:var(--ink-2)">To get flow inside MONITOR &mdash; which indicator tabs get used &mdash; the dashboard would need Matomo event or virtual-pageview tracking on tab changes. That is a development request to the OpenAIRE MONITOR team, not an export setting.</p>`;
@@ -944,7 +946,7 @@ function renderGeo(){
   });
   const cShown = geoScope==='members' ? countryRows.filter(r=>r.isA) : countryRows;
   const cmax = Math.max(...cShown.map(r=>r.c[2]), 1);
-  h='<table><thead><tr><th>Country</th><th class="barcell"></th><th>Visits</th><th>Actions / visit</th><th>Bounce</th></tr></thead><tbody>';
+  h='<table><thead><tr><th>Country</th><th class="barcell"></th><th>Visits</th><th>Actions / visit</th><th title="Share of visits that left after just the landing page &mdash; no second pageview or tracked click.">Bounce</th></tr></thead><tbody>';
   cShown.slice(0,14).forEach(({c,isA,isP,br,auto})=>{
     h+=`<tr><td>${c[0]} ${isA?'<span class="flagpill" title="'+AURORA[c[1]]+'" style="background:color-mix(in srgb,var(--c1) 14%,transparent);color:var(--c1);border-color:color-mix(in srgb,var(--c1) 40%,transparent)">A</span>':''}${isP?'<span class="flagpill" title="'+PARTNERS[c[1]]+' — associate partner" style="background:color-mix(in srgb,var(--c4) 14%,transparent);color:var(--c4);border-color:color-mix(in srgb,var(--c4) 40%,transparent)">P</span>':''}${auto?'<span class="flagpill" title="Bounce rate above 85% with about one action per visit — the signature of automated traffic">mostly automated</span>':''}</td>
       <td class="barcell"><div class="bar" style="width:${Math.max(2,c[2]/cmax*100)}%;background:${isA?'var(--c1)':isP?'var(--c4)':'var(--line-strong)'}"></div></td>
@@ -965,7 +967,7 @@ function renderGeo(){
   });
   const ctShown = geoScope==='members' ? cityRows.filter(r=>r.au) : cityRows;
   const citmax = Math.max(...ctShown.map(r=>r.c[3]), 1);
-  h='<table><thead><tr><th>City</th><th class="barcell"></th><th>Visits</th><th>Bounce</th></tr></thead><tbody>';
+  h='<table><thead><tr><th>City</th><th class="barcell"></th><th>Visits</th><th title="Share of visits that left after just the landing page &mdash; no second pageview or tracked click.">Bounce</th></tr></thead><tbody>';
   ctShown.slice(0,16).forEach(({c,br,op,dc,au})=>{
     let tag='';
     if(op) tag=`<small style="color:var(--warn-ink)">${op}</small>`;
