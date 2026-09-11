@@ -15,6 +15,7 @@ There is no package.json, build tool, linter, or test suite. "Developing" here m
 - `data/` — the raw Matomo CSV exports the dashboard's figures were built from.
 - `.claude/skills/` — vendored skills for follow-up work on this repo (see below).
 - `TODO.md` — planned work: brand redesign, further reorg, dynamic CSV loading.
+- `docs/data.md` / `docs/design.md` — how the data pipeline (CSV → SQL → chart/variable) and the visual design decisions work, in more depth than fits here.
 
 ## Running / previewing
 
