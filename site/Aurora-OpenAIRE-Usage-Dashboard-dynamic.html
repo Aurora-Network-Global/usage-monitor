@@ -299,7 +299,7 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   <div class="body">
     <div class="spacer"></div>
     <div>
-      <p>In all <span id="totalDaysCount">loading&hellip;</span> daily rows across both portals, <b>Unique visitors = Visits = New Visits</b> &mdash; exactly, every single day. No site behaves that way. Matomo on these two properties is not recognising returning visitors, so &ldquo;unique visitors&rdquo; here is a duplicate of &ldquo;visits&rdquo;, not a second measurement. Reporting both to the committee would present one number twice.</p>
+      <p>In all <span id="totalDaysCount">loading&hellip;</span> daily rows, <b>Unique visitors = Visits = New Visits</b> &mdash; exactly, every single day. No site behaves that way. Matomo here is not recognising returning visitors, so &ldquo;unique visitors&rdquo; here is a duplicate of &ldquo;visits&rdquo;, not a second measurement. Reporting both to the committee would present one number twice.</p>
       <p>This dashboard therefore reports <b>visits</b> and states the limitation. It also means the data cannot currently answer &ldquo;how many people came back&rdquo; &mdash; the uptake question the committee most likely cares about. Worth raising with whoever administers the Matomo instance before the review.</p>
     </div>
   </div>
@@ -314,7 +314,7 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
 <section id="s-visits">
   <div class="sechead">
     <div><h2>Monthly visits</h2>
-      <p>Both portals on one scale. Months carrying an automated-traffic signature are ringed &mdash; see the notes below.</p></div>
+      <p>One scale for every portal tracked here. Months carrying an automated-traffic signature are ringed &mdash; see the notes below.</p></div>
     <div class="controls">
       <div class="seg" role="group" aria-label="Time range">
         <button data-range="all" aria-pressed="true">All time</button>
@@ -351,7 +351,7 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
 
 <section id="s-channels">
   <div class="sechead"><div><h2>How visitors arrive</h2>
-    <p>Share of visits by referrer channel, per month. Campaigns and social are effectively absent on both portals.</p></div></div>
+    <p>Share of visits by referrer channel, per month. Campaigns and social are effectively absent throughout.</p></div></div>
   <div class="duo">
     <div class="panel">
       <h3 style="margin-bottom:2px">CONNECT</h3>
@@ -505,7 +505,11 @@ async function loadRAW(){
   const conn = await db.connect();
 
   // Fetch one CSV (UTF-16, per CLAUDE.md), decode it, and load it into a DuckDB table.
-  // Two options here were found necessary by testing against the real exports, not guessed:
+  // Filenames are fixed (no export date range in the name, unlike Matomo's own default) —
+  // refreshing data means overwriting the same 10 filenames in data/, never editing this list.
+  // Any file may simply be absent: a portal with no export (e.g. a single-portal deployment
+  // of this dashboard) just contributes no data for that dataset, handled below.
+  // Two DuckDB options here were found necessary by testing against the real exports, not guessed:
   //  - null_padding: true — some Main metrics rows omit trailing optional columns entirely
   //    rather than leaving them empty, which otherwise breaks DuckDB's delimiter sniffing.
   //  - types override on Page URLs — "Avg. time on page" values look like clock times
@@ -516,7 +520,7 @@ async function loadRAW(){
   //    non-deterministically and does not match).
   async function loadTable(name, file, typeOverrides){
     const res = await fetch(encodeURI('../data/' + file));
-    if(!res.ok) throw new Error(`Fetch failed for ${file}: HTTP ${res.status}`);
+    if(!res.ok) return false; // file not present for this deployment — not an error
     const buf = await res.arrayBuffer();
     const bytes = new Uint8Array(buf);
     const be = bytes[0]===0xFE && bytes[1]===0xFF;
@@ -524,20 +528,22 @@ async function loadRAW(){
     await db.registerFileText(file, text);
     const opts = "header=true, null_padding=true" + (typeOverrides ? `, types=${JSON.stringify(typeOverrides)}` : '');
     await conn.query(`CREATE TABLE ${name} AS SELECT *, row_number() OVER () AS __rn FROM read_csv('${file}', ${opts})`);
+    return true;
   }
   const FILES = [
-    ['mm_connect', 'Export _ Main metrics_CONNECT_Aurora _ January 1, 2024 – August 31, 2026.csv'],
-    ['mm_monitor', 'Export _ Main metrics _MONITOR_Aurora_December 1, 2023 – August 31, 2026.csv'],
-    ['ch_connect', 'Export _ Channel Type _ CONNECT_Aurora_April 15, 2024 – August 31, 2026.csv'],
-    ['ch_monitor', 'Export _ Channel Type _ MONITOR_Aurora_December 1, 2023 – August 31, 2026.csv'],
-    ['pages_connect', 'Export _ Page URLs _ CONNECT_Aurora_April 15, 2024 – August 31, 2026.csv', {'Avg. time on page':'VARCHAR'}],
-    ['pages_monitor', 'Export _ Page URLs _ MONITOR_Aurora_April 15, 2024 – August 31, 2026.csv', {'Avg. time on page':'VARCHAR'}],
-    ['country_connect', 'Export _ Country _ CONNECT_Aurora_April 15, 2024 – August 31, 2026.csv'],
-    ['country_monitor', 'Export _ Country_MONITOR_Aurora _ April 15, 2024 – August 31, 2026.csv'],
-    ['city_connect', 'Export _ City _ CONNECT_Aurora_April 15, 2024 – August 31, 2026.csv'],
-    ['city_monitor', 'Export _ City _MONITOR_Aurora_April 15, 2024 – August 31, 2026.csv'],
+    ['mm_connect', 'Export _ Main metrics _ CONNECT.csv'],
+    ['mm_monitor', 'Export _ Main metrics _ MONITOR.csv'],
+    ['ch_connect', 'Export _ Channel Type _ CONNECT.csv'],
+    ['ch_monitor', 'Export _ Channel Type _ MONITOR.csv'],
+    ['pages_connect', 'Export _ Page URLs _ CONNECT.csv', {'Avg. time on page':'VARCHAR'}],
+    ['pages_monitor', 'Export _ Page URLs _ MONITOR.csv', {'Avg. time on page':'VARCHAR'}],
+    ['country_connect', 'Export _ Country _ CONNECT.csv'],
+    ['country_monitor', 'Export _ Country _ MONITOR.csv'],
+    ['city_connect', 'Export _ City _ CONNECT.csv'],
+    ['city_monitor', 'Export _ City _ MONITOR.csv'],
   ];
-  for(const [name, file, typeOverrides] of FILES){ await loadTable(name, file, typeOverrides); }
+  const loaded = {};
+  for(const [name, file, typeOverrides] of FILES){ loaded[name] = await loadTable(name, file, typeOverrides); }
 
   // Column mappings verified row-for-row against the raw CSVs (see CLAUDE.md) — same shape
   // the RAW literal used to have, just computed live instead of hand-transcribed. Notably,
@@ -579,16 +585,20 @@ async function loadRAW(){
       Visits::INTEGER, COALESCE(Actions,0)::INTEGER, COALESCE(Bounces,0)::INTEGER
     FROM ${t} ORDER BY Visits DESC, __rn ASC`;
 
-  const CONNECT = await rows(mainMetricsSQL('mm_connect'));
-  const MONITOR = await rows(mainMetricsSQL('mm_monitor'));
-  const CONNECT_ch = await rows(channelSQL('ch_connect'));
-  const MONITOR_ch = await rows(channelSQL('ch_monitor'));
-  const pages = await rows(pagesSQL);
-  const mpageRow = (await rows(mpageSQL))[0];
-  const CONNECT_country = await rows(countrySQL('country_connect'));
-  const MONITOR_country = await rows(countrySQL('country_monitor'));
-  const CONNECT_city = await rows(citySQL('city_connect'));
-  const MONITOR_city = await rows(citySQL('city_monitor'));
+  const CONNECT = loaded.mm_connect ? await rows(mainMetricsSQL('mm_connect')) : [];
+  const MONITOR = loaded.mm_monitor ? await rows(mainMetricsSQL('mm_monitor')) : [];
+  const CONNECT_ch = loaded.ch_connect ? await rows(channelSQL('ch_connect')) : [];
+  const MONITOR_ch = loaded.ch_monitor ? await rows(channelSQL('ch_monitor')) : [];
+  const pages = loaded.pages_connect ? await rows(pagesSQL) : [];
+  const mpageRow = loaded.pages_monitor ? (await rows(mpageSQL))[0] : null;
+  const CONNECT_country = loaded.country_connect ? await rows(countrySQL('country_connect')) : [];
+  const MONITOR_country = loaded.country_monitor ? await rows(countrySQL('country_monitor')) : [];
+  const CONNECT_city = loaded.city_connect ? await rows(citySQL('city_connect')) : [];
+  const MONITOR_city = loaded.city_monitor ? await rows(citySQL('city_monitor')) : [];
+
+  if(!CONNECT.length && !MONITOR.length){
+    throw new Error('No Main metrics CSV found for either portal — at least one of "Export _ Main metrics _ CONNECT.csv" or "Export _ Main metrics _ MONITOR.csv" must be present in data/.');
+  }
 
   await conn.close();
   await db.terminate();
@@ -610,16 +620,39 @@ async function loadRAW(){
 
   return {
     CONNECT, MONITOR, CONNECT_ch, MONITOR_ch, pages,
-    mpage: {label:mpageRow[0], upv:mpageRow[1], pv:mpageRow[2], entrances:mpageRow[3], bounce:mpageRow[4], avgtime:mpageRow[5]},
+    mpage: mpageRow ? {label:mpageRow[0], upv:mpageRow[1], pv:mpageRow[2], entrances:mpageRow[3], bounce:mpageRow[4], avgtime:mpageRow[5]} : null,
     CONNECT_country, MONITOR_country, CONNECT_city, MONITOR_city, meta
   };
 }
 
 async function main(RAW){
-const PORTALS = [
+// PORTALS_ALL is the full two-portal config this report was built for; PORTALS below is
+// whichever of those actually have data loaded — a deployment that only exports one portal
+// (e.g. a single-portal fork of this dashboard) just gets one portal's worth of UI, not a crash.
+const PORTALS_ALL = [
   {key:'CONNECT', name:'OpenAIRE CONNECT', url:'aurora.openaire.eu', color:'var(--s1)', role:'Community gateway &mdash; search, claim, curate'},
   {key:'MONITOR', name:'OpenAIRE MONITOR', name2:'MONITOR', url:'monitor.openaire.eu/dashboard/aurora', color:'var(--s2)', role:'Open science indicator dashboard'}
 ];
+const PORTALS = PORTALS_ALL.filter(p => RAW[p.key] && RAW[p.key].length);
+if(!PORTALS.length){ throw new Error('No portal data loaded — check that at least one Main metrics CSV exists in data/.'); }
+
+// Hide every DOM piece that's specific to a portal with no data, rather than rendering it
+// empty/zeroed (which would misleadingly look like "this portal genuinely has 0 visits").
+const CHANNEL_DOM = {CONNECT:['chConnect','chConnectTip','chConnectBox'], MONITOR:['chMonitor','chMonitorTip','chMonitorBox']};
+const PAGES_SECTION = {CONNECT:'s-pages-connect', MONITOR:'s-pages-monitor'};
+PORTALS_ALL.filter(p => !PORTALS.includes(p)).forEach(p=>{
+  const chBox = document.getElementById(CHANNEL_DOM[p.key][2]);
+  if(chBox) chBox.closest('.panel').style.display = 'none';
+  const pagesSection = document.getElementById(PAGES_SECTION[p.key]);
+  if(pagesSection) pagesSection.style.display = 'none';
+  const geoBtn = document.querySelector(`[data-geo="${p.key}"]`);
+  if(geoBtn) geoBtn.style.display = 'none';
+});
+if(PORTALS.length < 2){
+  const geoToggle = document.querySelector('[aria-label="Portal for geography"]');
+  if(geoToggle) geoToggle.style.display = 'none';
+}
+
 const CH = [
   {k:'Direct Entry', v:'--c1'},
   {k:'Search Engines', v:'--c2'},
@@ -648,7 +681,7 @@ document.getElementById('totalDaysCount').textContent = nf(RAW.meta.totalDays);
 // index data by month
 const D = {};
 PORTALS.forEach(p=>{
-  const rows = RAW[p.key], ch = RAW[p.key+'_ch'];
+  const rows = RAW[p.key] || [], ch = RAW[p.key+'_ch'] || [];
   const byM = {};
   rows.forEach(r=>{ byM[r[0]] = {visits:r[1],actions:r[2],bounces:r[3],pageviews:r[4],upv:r[5],secs:r[6],days:r[7]}; });
   ch.forEach(c=>{ if(byM[c[0]]) byM[c[0]].ch = {'Direct Entry':c[1],'Search Engines':c[2],'Websites':c[3],'Social Networks':c[4],'Campaigns':c[5]}; });
@@ -680,7 +713,7 @@ function summarise(key){
   return {ms,total,l,p,delta:p? (l-p)/p : 0, peak, cleanPeak, actions, bounces, secs,
           apv: actions/total, br: bounces/total, avgDur: secs/total, avgL12: l/12};
 }
-const S = {CONNECT:summarise('CONNECT'), MONITOR:summarise('MONITOR')};
+const S = {}; PORTALS.forEach(p=>{ S[p.key] = summarise(p.key); });
 
 function sparkPath(key,w,h){
   const byM=D[key]; const vals=ALL_MONTHS.map(m=>byM[m]?byM[m].visits:null);
@@ -708,7 +741,7 @@ document.getElementById('portals').innerHTML = PORTALS.map((p,i)=>{
       <span class="trend ${dn?'down':'up'}">${dn?'▼':'▲'} ${Math.abs(s.delta*100).toFixed(0)}% YoY</span>
     </div>
     <div>
-      <div class="hero"><span class="v">${nf(s.total)}</span><span class="u">visits, ${p.key==='CONNECT'?'Apr 2024':'Dec 2023'} – Aug 2026</span></div>
+      <div class="hero"><span class="v">${nf(s.total)}</span><span class="u">visits, ${fmtMonthLong(Object.keys(D[p.key]).sort()[0])} – ${fmtMonthLong(ALL_MONTHS[ALL_MONTHS.length-1])}</span></div>
       <svg class="spark" viewBox="0 0 300 50" preserveAspectRatio="none" aria-hidden="true">
         <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="${p.color}" stop-opacity=".22"/>
@@ -825,14 +858,17 @@ document.getElementById('visitsLegend').innerHTML =
 
 function drawVisitsTable(){
   const ms=visibleMonths();
-  let h='<table><thead><tr><th>Month</th><th>CONNECT visits</th><th>CONNECT actions</th><th>MONITOR visits</th><th>MONITOR actions</th><th>Combined visits</th></tr></thead><tbody>';
+  const plural = PORTALS.length > 1;
+  let h='<table><thead><tr><th>Month</th>' +
+    PORTALS.map(p=>`<th>${p.key} visits</th><th>${p.key} actions</th>`).join('') +
+    (plural?'<th>Combined visits</th>':'') + '</tr></thead><tbody>';
   ms.forEach(m=>{
-    const c=D.CONNECT[m], mo=D.MONITOR[m];
-    const tot=(c?c.visits:0)+(mo?mo.visits:0);
-    h+=`<tr><td>${fmtMonthLong(m)}${(c&&c.flag)||(mo&&mo.flag)?' <span class="flagpill">flagged</span>':''}</td>
-      <td class="n">${c?nf(c.visits):'—'}</td><td class="n">${c?nf(c.actions):'—'}</td>
-      <td class="n">${mo?nf(mo.visits):'—'}</td><td class="n">${mo?nf(mo.actions):'—'}</td>
-      <td class="n">${nf(tot)}</td></tr>`;
+    const ds = PORTALS.map(p=>D[p.key][m]);
+    const tot = ds.reduce((s,d)=>s+(d?d.visits:0),0);
+    const flagged = ds.some(d=>d&&d.flag);
+    h+=`<tr><td>${fmtMonthLong(m)}${flagged?' <span class="flagpill">flagged</span>':''}</td>` +
+      ds.map(d=>`<td class="n">${d?nf(d.visits):'—'}</td><td class="n">${d?nf(d.actions):'—'}</td>`).join('') +
+      (plural?`<td class="n">${nf(tot)}</td>`:'') + '</tr>';
   });
   document.getElementById('visitsTable').innerHTML=h+'</tbody></table>';
 }
@@ -996,6 +1032,7 @@ const NICE = {
 })();
 
 (function(){
+  if(!RAW.mpage) return; // no Page URLs export for MONITOR — section is already hidden above
   const p=RAW.mpage;
   document.getElementById('monitorPage').innerHTML=`
   <p style="margin:0 0 14px;font-size:.9rem;color:var(--ink-2)">The MONITOR dashboard is a single-page application: Matomo records the whole indicator dashboard under one URL, so there is no page-level breakdown to show. Everything below describes one page.</p>
@@ -1029,7 +1066,7 @@ const AURORA_CITY = {'Créteil':'Paris-East Créteil','Amsterdam':'VU Amsterdam'
 const OPSITE = {'Pisa':'OpenAIRE technical site (ISTI–CNR)','Athens':'OpenAIRE coordinator (ATHENA RC)',
   'Marousi':'OpenAIRE coordinator (ATHENA RC)','Athens (Ampelokipoi)':'OpenAIRE coordinator (ATHENA RC)'};
 const DCNAMES = ['Ashburn','Dublin','Frankfurt am Main','Council Bluffs','Boardman','The Dalles','Singapore','Columbus'];
-let geoKey='CONNECT', geoScope='all';
+let geoKey=PORTALS[0].key, geoScope='all';
 
 function renderGeo(){
   const ctry = RAW[geoKey+'_country'], city = RAW[geoKey+'_city'];
@@ -1134,39 +1171,77 @@ document.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click',
 renderGeo();
 
 // ---------- notes ----------
+// Written to read naturally whether one or both portals are loaded: every note below is
+// built from PORTALS/S/D rather than hand-typed for a fixed pair, and a note that only makes
+// sense when it found something (bot months, a coverage gap) is skipped when there's nothing
+// to say. Two notes stay written for a two-portal Aurora deployment specifically (marked below) —
+// forking this dashboard for a different, differently-branded portal means rewriting those by hand.
 (function(){
-  const c=S.CONNECT, m=S.MONITOR;
+  const plural = PORTALS.length > 1;
+  const listJoin = arr => arr.length<=1 ? (arr[0]||'') : arr.slice(0,-1).join(', ') + ' and ' + arr[arr.length-1];
   const botMonths=[];
-  PORTALS.forEach(p=>Object.entries(D[p.key]).forEach(([mm,d])=>{ if(d.flag==='bot') botMonths.push(p.key+' '+fmtMonthLong(mm)); }));
+  PORTALS.forEach(p=>Object.entries(D[p.key]).forEach(([mm,d])=>{ if(d.flag==='bot') botMonths.push({key:p.key, label:p.key+' '+fmtMonthLong(mm)}); }));
   const crawl=[];
   PORTALS.forEach(p=>Object.entries(D[p.key]).forEach(([mm,d])=>{ if(d.flag==='crawl') crawl.push(`${p.key} ${fmtMonthLong(mm)} (${d.apv.toFixed(0)} actions per visit)`); }));
-  document.getElementById('notes').innerHTML=`
-  <dt>&ldquo;Unique visitors&rdquo; is not usable</dt>
-  <dd>Across ${RAW.meta.connectDays} CONNECT and ${RAW.meta.monitorDays} MONITOR daily rows, unique visitors equals visits equals new visits in every single row. Visitor recognition is not working on these properties, most likely a privacy or cookie setting in the Matomo configuration. Until it is fixed, no return-visitor or unique-audience figure can be produced from this data, and the two columns must not be presented as separate metrics.</dd>
+  const notes = [];
 
-  <dt>Two CONNECT months carry an automated-traffic signature</dt>
-  <dd>${botMonths.join(' and ')} sit far above every neighbouring month while running roughly 90% bounce and roughly 90% direct entry &mdash; the pattern of a crawler, not of people. ${botMonths.length?'They are ringed in the chart and marked in the table.':''} Excluding them, the genuine CONNECT high point is ${fmtMonthLong(c.cleanPeak)} at ${nf(D.CONNECT[c.cleanPeak].visits)} visits. Quoting the raw peak to the committee would overstate uptake.</dd>
+  notes.push([`&ldquo;Unique visitors&rdquo; is not usable`,
+    `Across ${listJoin(PORTALS.map(p=>`${nf(RAW[p.key].reduce((s,r)=>s+r[7],0))} ${p.key}`))} daily rows, unique visitors equals visits equals new visits in every single row. Visitor recognition is not working on ${plural?'these properties':'this property'}, most likely a privacy or cookie setting in the Matomo configuration. Until it is fixed, no return-visitor or unique-audience figure can be produced from this data, and the two columns must not be presented as separate metrics.`]);
 
-  <dt>One month has an implausible action count</dt>
-  <dd>${crawl.join('; ')}. A handful of visits generating hundreds of actions is a crawler or an automated test, not engagement. The depth chart caps its y-scale and prints the true value rather than letting one point flatten every other month.</dd>
+  if(botMonths.length){
+    const affected = [...new Set(botMonths.map(b=>b.key))];
+    notes.push([`${botMonths.length>1?'Some months carry':'One month carries'} an automated-traffic signature`,
+      `${listJoin(botMonths.map(b=>b.label))} sit far above every neighbouring month while running roughly 90% bounce and roughly 90% direct entry &mdash; the pattern of a crawler, not of people. They are ringed in the chart and marked in the table. Excluding ${botMonths.length>1?'them':'it'}, the genuine high point${affected.length>1?'s are':' is'} ${affected.map(k=>`${fmtMonthLong(S[k].cleanPeak)} at ${nf(D[k][S[k].cleanPeak].visits)} visits (${k})`).join('; ')}. Quoting the raw peak to the committee would overstate uptake.`]);
+  }
 
-  <dt>Visits are small in absolute terms</dt>
-  <dd>Both portals operate in the tens-to-low-hundreds of visits per month. Over the last twelve months CONNECT averaged ${c.avgL12.toFixed(0)} visits per month and MONITOR ${m.avgL12.toFixed(0)}. At this scale, a single workshop, newsletter or crawler visibly moves the line, and percentage changes are volatile by construction. Present absolute counts alongside any percentage.</dd>
+  if(crawl.length){
+    notes.push([`${crawl.length>1?'Some months have':'One month has'} an implausible action count`,
+      `${listJoin(crawl)}. A handful of visits generating hundreds of actions is a crawler or an automated test, not engagement. The depth chart caps its y-scale and prints the true value rather than letting one point flatten every other month.`]);
+  }
 
-  <dt>The trend is down, on both portals</dt>
-  <dd>Last twelve months against the twelve before: CONNECT ${nf(c.l)} vs ${nf(c.p)} visits (${(c.delta*100).toFixed(0)}%), MONITOR ${nf(m.l)} vs ${nf(m.p)} (${(m.delta*100).toFixed(0)}%). The decline begins around November 2025 on both portals simultaneously, which is worth checking against the OpenAIRE side: a simultaneous drop on two independent properties can equally be a tracking change (a Matomo upgrade, a consent-banner change, a bot filter switched on) as a genuine loss of audience. Confirm before interpreting it as a fall in uptake.</dd>
+  notes.push([`Visits are small in absolute terms`,
+    `${plural?'Both portals operate':'This portal operates'} in the tens-to-low-hundreds of visits per month. Over the last twelve months ${listJoin(PORTALS.map(p=>`${p.key} averaged ${S[p.key].avgL12.toFixed(0)}`))} visits per month. At this scale, a single workshop, newsletter or crawler visibly moves the line, and percentage changes are volatile by construction. Present absolute counts alongside any percentage.`]);
 
-  <dt>Dates and coverage</dt>
-  <dd>MONITOR data starts 1 Dec 2023, CONNECT data starts 25 Apr 2024, both run to 31 Aug 2026. Months are calendar months built from the daily exports. Days with no traffic are absent from the source and are treated as zero; months entirely absent appear as gaps in the lines rather than as zeros.</dd>
+  {
+    const allDown = PORTALS.every(p=>S[p.key].delta<0), allUp = PORTALS.every(p=>S[p.key].delta>0);
+    notes.push([`The trend is ${allDown?'down':allUp?'up':'mixed'}${plural?', across portals':''}`,
+      `Last twelve months against the twelve before: ${listJoin(PORTALS.map(p=>`${p.key} ${nf(S[p.key].l)} vs ${nf(S[p.key].p)} visits (${(S[p.key].delta*100).toFixed(0)}%)`))}.${plural && allDown ? ' The decline begins around the same time on both portals, which is worth checking against the OpenAIRE side: a simultaneous drop on two independent properties can equally be a tracking change (a Matomo upgrade, a consent-banner change, a bot filter switched on) as a genuine loss of audience.' : ''} Confirm before interpreting it as a change in uptake.`]);
+  }
 
-  <dt>A large share of traffic is the project&rsquo;s own team</dt>
-  <dd>Pisa is the top city on CONNECT and third on MONITOR; Marousi and Athens are close behind. Those are ISTI&ndash;CNR and ATHENA Research Center &mdash; OpenAIRE&rsquo;s technical operator and coordinator, not Aurora institutions. Créteil (Paris-East Créteil) is the one Aurora member that shows sustained, deep use: top city on MONITOR, second on CONNECT, with well-above-average session depth. Naples and Copenhagen each register only a handful of visits, and only on one portal; Tarragona (Rovira i Virgili) shows none at all in either portal&rsquo;s city breakdown. That, rather than the headline totals, is the uptake story.</dd>
+  notes.push([`Dates and coverage`,
+    `${listJoin(PORTALS.map(p=>`${p.key} data starts ${fmtMonthLong(Object.keys(D[p.key]).sort()[0])}`))}, ${plural?'both run':'running'} to ${fmtMonthLong(ALL_MONTHS[ALL_MONTHS.length-1])}. Months are calendar months built from the daily exports. Days with no traffic are absent from the source and are treated as zero; months entirely absent appear as gaps in the lines rather than as zeros.`]);
 
-  <dt>Geography is period totals, not monthly</dt>
-  <dd>The country and city exports cover 15 Apr 2024 &ndash; 31 Aug 2026 as one lump, so they cannot be broken down by month, and MONITOR&rsquo;s first four months (Dec 2023 &ndash; Apr 2024) are outside them: geographic totals for MONITOR are 1,257 visits against 1,455 in the monthly series. City is inferred from IP address; at these volumes most city rows are single-digit, and rows resolving to cloud data centres (Ashburn, Dublin, Frankfurt) are machines, not people.</dd>
+  // Aurora-specific: flags whether each portal's top city is OpenAIRE's own operator/coordinator
+  // (OPSITE) or an actual Aurora member (AURORA_CITY) rather than hand-naming cities. Still tied
+  // to the AURORA/OPSITE lookups defined below for this specific alliance's membership.
+  {
+    const cityNotes = PORTALS.map(p=>{
+      const top = (RAW[p.key+'_city']||[])[0];
+      if(!top) return null;
+      const label = OPSITE[top[0]] ? `${OPSITE[top[0]]} &mdash; not an Aurora institution`
+        : AURORA_CITY[top[0]] ? `${AURORA_CITY[top[0]]} &mdash; an Aurora member university`
+        : 'not a known Aurora institution or OpenAIRE site';
+      return `${p.key}&rsquo;s top city is ${top[0]} (${nf(top[3])} visits) &mdash; ${label}`;
+    }).filter(Boolean);
+    if(cityNotes.length){
+      notes.push([`A large share of traffic can be the project&rsquo;s own team`,
+        `${listJoin(cityNotes)}. City is inferred from IP address, so this is indicative, not exact &mdash; but it&rsquo;s worth checking before reading a top city as genuine member uptake, rather than the people who build and run the portals.`]);
+    }
+  }
 
-  <dt>Not measured here</dt>
-  <dd>Downloads, outlinks and site searches are present in the Matomo export but are effectively zero on both portals across the whole period, so they are not charted. Conversions and goals are not configured.</dd>`;
+  {
+    const geoNote = PORTALS.map(p=>{
+      const geoTotal = (RAW[p.key+'_country']||[]).reduce((s,c)=>s+c[2],0);
+      return geoTotal ? `${p.key} ${nf(geoTotal)} (geography) vs ${nf(S[p.key].total)} (monthly series)` : null;
+    }).filter(Boolean);
+    notes.push([`Geography is a period total, not monthly`,
+      `The country and city exports are a single whole-period snapshot per portal, not broken down by month, and Matomo took that snapshot over its own date range rather than each portal's full tracked history &mdash; so the totals don't always match the monthly series exactly: ${listJoin(geoNote)}. City is inferred from IP address; at these volumes most city rows are single-digit, and rows resolving to cloud data centres (Ashburn, Dublin, Frankfurt) are machines, not people.`]);
+  }
+
+  notes.push([`Not measured here`,
+    `Downloads, outlinks and site searches are present in the Matomo export but are effectively zero on ${plural?'both portals':'this portal'} across the whole period, so they are not charted. Conversions and goals are not configured.`]);
+
+  document.getElementById('notes').innerHTML = notes.map(([dt,dd])=>`<dt>${dt}</dt><dd>${dd}</dd>`).join('');
 })();
 
 // ---------- cost benchmark ----------
@@ -1174,12 +1249,13 @@ renderGeo();
 // not derived from the Matomo exports. Update it here if the contract changes.
 (function(){
   const ANNUAL_COST_EUR = 10000;
-  const visitsL12 = S.CONNECT.l + S.MONITOR.l;
+  const visitsL12 = PORTALS.reduce((s,p)=>s+S[p.key].l, 0);
   const perVisit = ANNUAL_COST_EUR / visitsL12;
+  const plural = PORTALS.length > 1;
   document.getElementById('costBenchmark').innerHTML = `
     <div class="substats" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
       <div><div class="k">Annual bundle cost</div><div class="v">&euro;${nf(ANNUAL_COST_EUR)}</div></div>
-      <div><div class="k">Combined visits, last 12 months</div><div class="v">${nf(visitsL12)} <span style="font-size:.72rem;color:var(--ink-3)">CONNECT ${nf(S.CONNECT.l)} + MONITOR ${nf(S.MONITOR.l)}</span></div></div>
+      <div><div class="k">${plural?'Combined visits':'Visits'}, last 12 months</div><div class="v">${nf(visitsL12)} ${plural?`<span style="font-size:.72rem;color:var(--ink-3)">${PORTALS.map(p=>`${p.key} ${nf(S[p.key].l)}`).join(' + ')}</span>`:''}</div></div>
       <div><div class="k">Cost per visit</div><div class="v">&euro;${perVisit.toFixed(2)}</div></div>
     </div>
     <p>There is no published industry benchmark for &ldquo;cost per visitor&rdquo; of a niche, multi-university alliance analytics portal like this one &mdash; it is not a category anyone surveys. The three reference points below are the closest adjacent proxies found; each measures something genuinely different from what this dashboard tracks, so read them as context, not as a direct comparison. Figures are in US dollars from US-market sources and shown untranslated &mdash; treat them as roughly euro-equivalent, not exact.</p>
@@ -1194,19 +1270,16 @@ renderGeo();
           <td>Cost to buy one click from an ad campaign &mdash; a one-off acquisition cost with no ongoing content, hosting, or maintenance bundled in. Lower than &euro;${perVisit.toFixed(0)}, but it buys nothing beyond the click.</td></tr>
         <tr><td>Small SaaS product, infrastructure cost per active user/year</td>
           <td class="n">$6&ndash;60</td>
-          <td>Hosting/infrastructure spend to serve one logged-in active user of a maintained tool &mdash; the closest analogy to running CONNECT/MONITOR, though those are authenticated accounts, not anonymous visits. &euro;${perVisit.toFixed(0)} sits inside this range.</td></tr>
+          <td>Hosting/infrastructure spend to serve one logged-in active user of a maintained tool &mdash; the closest analogy to running ${plural?'CONNECT/MONITOR':PORTALS[0].key}, though those are authenticated accounts, not anonymous visits. &euro;${perVisit.toFixed(0)} sits inside this range.</td></tr>
       </tbody></table>
     </div>
-    <p style="margin-top:14px">None of these is a clean benchmark, and the caveat at the top of this page cuts against the headline number too: &ldquo;${nf(visitsL12)} visits&rdquo; is not ${nf(visitsL12)} distinct people &mdash; Matomo cannot tell repeat visits from new ones on either portal, so the true cost per person who used CONNECT or MONITOR at least once is higher than &euro;${perVisit.toFixed(0)}, possibly considerably higher. The more defensible framing for the committee is the operational one: &euro;${ANNUAL_COST_EUR.toLocaleString('en-GB')}/year for ${nf(visitsL12)} visits reads as what a well-run small tool spends in pure infrastructure per active user, not as what higher-education marketing spends to generate a single qualified lead. That argument rests on cost discipline, not on audience size &mdash; and it would be stronger still with a genuine unique-visitor count, once Matomo&rsquo;s tracking on these two properties is fixed.</p>
+    <p style="margin-top:14px">None of these is a clean benchmark, and the caveat at the top of this page cuts against the headline number too: &ldquo;${nf(visitsL12)} visits&rdquo; is not ${nf(visitsL12)} distinct people &mdash; Matomo cannot tell repeat visits from new ones on ${plural?'either portal':'this portal'}, so the true cost per person who used ${plural?'CONNECT or MONITOR':'it'} at least once is higher than &euro;${perVisit.toFixed(0)}, possibly considerably higher. The more defensible framing for the committee is the operational one: &euro;${ANNUAL_COST_EUR.toLocaleString('en-GB')}/year for ${nf(visitsL12)} visits reads as what a well-run small tool spends in pure infrastructure per active user, not as what higher-education marketing spends to generate a single qualified lead. That argument rests on cost discipline, not on audience size &mdash; and it would be stronger still with a genuine unique-visitor count, once Matomo&rsquo;s tracking on ${plural?'these properties':'this property'} is fixed.</p>
     <p class="sources">Sources: <a href="https://www.searchinfluence.com/blog/2026-higher-education-marketing-benchmarks/" target="_blank" rel="noopener">Search Influence, 2026 Higher Education Marketing Benchmarks</a> &middot; <a href="https://cheq.ai/blog/what-is-cost-per-visit-cpv/" target="_blank" rel="noopener">CHEQ, What Is Cost Per Visit (CPV)</a> &middot; <a href="https://spendark.com/blog/cloud-cost-saas-startups/" target="_blank" rel="noopener">Spendark, Cloud Cost Management for SaaS Startups</a></p>`;
 })();
 
-drawVisits(); drawVisitsTable(); drawDepth();
-drawChannels('CONNECT','chConnect','chConnectTip','chConnectBox');
-drawChannels('MONITOR','chMonitor','chMonitorTip','chMonitorBox');
-let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawVisits();drawDepth();
-  drawChannels('CONNECT','chConnect','chConnectTip','chConnectBox');
-  drawChannels('MONITOR','chMonitor','chMonitorTip','chMonitorBox');},180);});
+function drawAllChannels(){ PORTALS.forEach(p=>drawChannels(p.key, ...CHANNEL_DOM[p.key])); }
+drawVisits(); drawVisitsTable(); drawDepth(); drawAllChannels();
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawVisits();drawDepth();drawAllChannels();},180);});
 }
 loadRAW().then(main).catch(err => {
   console.error(err);
