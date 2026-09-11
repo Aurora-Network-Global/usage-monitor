@@ -1283,6 +1283,10 @@ let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{drawV
 }
 loadRAW().then(main).catch(err => {
   console.error(err);
-  document.body.innerHTML = '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap">Failed to load data dynamically:\n' + (err && err.stack || err) + '</pre>';
+  // err.stack omits the message on WebKit (Safari/most mobile browsers show only frames,
+  // no "Error: <message>" line) — print message and stack separately so a screenshot of
+  // this screen is actually diagnosable regardless of browser engine.
+  const detail = [err && err.message, err && err.stack].filter(Boolean).join('\n') || String(err);
+  document.body.innerHTML = '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap">Failed to load data dynamically:\n' + detail + '</pre>';
 });
 </script>
