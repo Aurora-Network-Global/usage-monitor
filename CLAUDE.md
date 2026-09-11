@@ -4,16 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A single-page, dependency-free analytics report: `Aurora-OpenAIRE-Usage-Dashboard.html`. It presents Matomo usage stats for two Aurora Universities Alliance / OpenAIRE portals — **CONNECT** (`aurora.openaire.eu`) and **MONITOR** (`monitor.openaire.eu/dashboard/aurora`) — for the Aurora2030 review committee. The raw Matomo CSV exports that the dashboard's numbers were derived from live alongside it at the repo root.
+A single-page, dependency-free analytics report: `site/Aurora-OpenAIRE-Usage-Dashboard.html`. It presents Matomo usage stats for two Aurora Universities Alliance / OpenAIRE portals — **CONNECT** (`aurora.openaire.eu`) and **MONITOR** (`monitor.openaire.eu/dashboard/aurora`) — for the Aurora2030 review committee. The raw Matomo CSV exports that the dashboard's numbers were derived from live in `data/`.
 
 There is no package.json, build tool, linter, or test suite. "Developing" here means editing the HTML file directly and opening it in a browser.
+
+## Layout
+
+- `index.html` — GitHub Pages entry point; redirects to `site/Aurora-OpenAIRE-Usage-Dashboard.html`.
+- `site/` — the dashboard HTML (and, once the redesign/dynamic-loading TODOs land, its assets/scripts).
+- `data/` — the raw Matomo CSV exports the dashboard's figures were built from.
+- `.claude/skills/` — vendored skills for follow-up work on this repo (see below).
+- `TODO.md` — planned work: brand redesign, further reorg, dynamic CSV loading.
 
 ## Running / previewing
 
 Just open the file — no server or build step required:
 
 ```
-open Aurora-OpenAIRE-Usage-Dashboard.html   # or: xdg-open / drag into a browser
+open site/Aurora-OpenAIRE-Usage-Dashboard.html   # or: xdg-open / drag into a browser
 ```
 
 There is nothing to install, compile, lint, or test.
@@ -43,6 +51,16 @@ Key pieces in the script, top to bottom:
 
 The dashboard explicitly calls out (in the banner near the top of the page) that across all 887 daily rows, `Unique visitors == Visits == New Visits` exactly — Matomo is not distinguishing returning visitors on these two properties. The dashboard therefore reports **visits**, not "unique visitors," and states this limitation rather than hiding it. Preserve this caveat (and re-verify it) if the underlying CSVs are refreshed.
 
-## CSV exports at the repo root
+## CSV exports in data/
 
-The `Export _ *.csv` files are raw Matomo exports (Channel Type, City, Country, Main metrics, Page URLs — each split by portal) and are the source material `RAW` was built from. They are **UTF-16 encoded**; reading them with a UTF-8-assuming tool (`cat`, `grep`, naive `csv` libraries) will show garbled/spaced-out text. Decode as UTF-16 (e.g. Python `open(path, encoding='utf-16')`, or `iconv -f utf-16`) before parsing.
+The `data/Export _ *.csv` files are raw Matomo exports (Channel Type, City, Country, Main metrics, Page URLs — each split by portal) and are the source material `RAW` was built from. They are **UTF-16 encoded**; reading them with a UTF-8-assuming tool (`cat`, `grep`, naive `csv` libraries) will show garbled/spaced-out text. Decode as UTF-16 (e.g. Python `open(path, encoding='utf-16')`, or `iconv -f utf-16`) before parsing.
+
+## Vendored skills
+
+`.claude/skills/taste-skill/` — frontend design-taste skill (MIT, from leonxlnx/taste-skill), for the brand-matching redesign in `TODO.md` item 1. Note it's written for landing pages/portfolios, not dashboards, so apply its typography/color-calibration/redesign-audit guidance rather than its landing-page layout and motion rules.
+
+`.claude/skills/labeling-ai-generated-content/` — EU AI Act Article 50 disclosure-labeling skill (CC0, from ubvu/wibt-communicatie).
+
+## Open work (see TODO.md)
+
+The redesign (TODO item 1) needs the actual colors/fonts/logo from aurora-universities.eu. This sandbox's network egress policy blocks fetching arbitrary external domains (confirmed: even `example.com` is blocked, not just that one host), so pulling them programmatically from here isn't possible — get them from the user, a screenshot, or a session with broader network access before applying the brand.
