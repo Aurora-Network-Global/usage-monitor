@@ -186,6 +186,11 @@ code{font-family:"IBM Plex Mono",monospace;font-size:.82em;background:var(--surf
 .flagpill{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-family:"IBM Plex Mono",monospace;
   background:var(--warn-bg);color:var(--warn-ink);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);
   padding:1px 7px;border-radius:999px}
+
+/* cost benchmark */
+.sources{font-size:.78rem;color:var(--ink-3);margin:0}
+.sources a{color:var(--accent)}
+.benchmark-table th,.benchmark-table td{white-space:normal;text-align:left;vertical-align:top}
 footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--ink-3)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -343,6 +348,12 @@ footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-si
   <div class="panel">
     <dl class="notes" id="notes"></dl>
   </div>
+</section>
+
+<section>
+  <div class="sechead"><div><h2>Cost per visit</h2>
+    <p>A rough benchmark for the &euro;10,000/year bundle cost, to help justify the effort put into uptake &mdash; not a precise industry figure.</p></div></div>
+  <div class="panel" id="costBenchmark"></div>
 </section>
 
 <footer>
@@ -899,6 +910,38 @@ renderGeo();
 
   <dt>Not measured here</dt>
   <dd>Downloads, outlinks and site searches are present in the Matomo export but are effectively zero on both portals across the whole period, so they are not charted. Conversions and goals are not configured.</dd>`;
+})();
+
+// ---------- cost benchmark ----------
+// ANNUAL_COST_EUR is the combined CONNECT+MONITOR bundle cost as supplied by the Aurora office —
+// not derived from the Matomo exports. Update it here if the contract changes.
+(function(){
+  const ANNUAL_COST_EUR = 10000;
+  const visitsL12 = S.CONNECT.l + S.MONITOR.l;
+  const perVisit = ANNUAL_COST_EUR / visitsL12;
+  document.getElementById('costBenchmark').innerHTML = `
+    <div class="substats" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+      <div><div class="k">Annual bundle cost</div><div class="v">&euro;${nf(ANNUAL_COST_EUR)}</div></div>
+      <div><div class="k">Combined visits, last 12 months</div><div class="v">${nf(visitsL12)} <span style="font-size:.72rem;color:var(--ink-3)">CONNECT ${nf(S.CONNECT.l)} + MONITOR ${nf(S.MONITOR.l)}</span></div></div>
+      <div><div class="k">Cost per visit</div><div class="v">&euro;${perVisit.toFixed(2)}</div></div>
+    </div>
+    <p>There is no published industry benchmark for &ldquo;cost per visitor&rdquo; of a niche, multi-university alliance analytics portal like this one &mdash; it is not a category anyone surveys. The three reference points below are the closest adjacent proxies found; each measures something genuinely different from what this dashboard tracks, so read them as context, not as a direct comparison. Figures are in US dollars from US-market sources and shown untranslated &mdash; treat them as roughly euro-equivalent, not exact.</p>
+    <div class="tablewrap" style="margin-top:10px">
+      <table class="benchmark-table"><colgroup><col style="width:20%"><col style="width:11%"><col></colgroup>
+      <thead><tr><th>Reference point</th><th>Typical figure</th><th>What it actually measures</th></tr></thead><tbody>
+        <tr><td>Higher-education cost per inquiry <span style="color:var(--ink-3)">(US enrollment-marketing surveys)</span></td>
+          <td class="n">$106&ndash;140</td>
+          <td>Cost to generate one qualified prospect who actively asks for information &mdash; a converted, funnel-qualified lead, not a passive site visit. 10&ndash;14&times; this dashboard&rsquo;s &euro;${perVisit.toFixed(0)}, but a lead and a visit are not the same unit.</td></tr>
+        <tr><td>Commercial paid-traffic cost per visit <span style="color:var(--ink-3)">(display/search ads)</span></td>
+          <td class="n">$1&ndash;5</td>
+          <td>Cost to buy one click from an ad campaign &mdash; a one-off acquisition cost with no ongoing content, hosting, or maintenance bundled in. Lower than &euro;${perVisit.toFixed(0)}, but it buys nothing beyond the click.</td></tr>
+        <tr><td>Small SaaS product, infrastructure cost per active user/year</td>
+          <td class="n">$6&ndash;60</td>
+          <td>Hosting/infrastructure spend to serve one logged-in active user of a maintained tool &mdash; the closest analogy to running CONNECT/MONITOR, though those are authenticated accounts, not anonymous visits. &euro;${perVisit.toFixed(0)} sits inside this range.</td></tr>
+      </tbody></table>
+    </div>
+    <p style="margin-top:14px">None of these is a clean benchmark, and the caveat at the top of this page cuts against the headline number too: &ldquo;${nf(visitsL12)} visits&rdquo; is not ${nf(visitsL12)} distinct people &mdash; Matomo cannot tell repeat visits from new ones on either portal, so the true cost per person who used CONNECT or MONITOR at least once is higher than &euro;${perVisit.toFixed(0)}, possibly considerably higher. The more defensible framing for the committee is the operational one: &euro;${ANNUAL_COST_EUR.toLocaleString('en-GB')}/year for ${nf(visitsL12)} visits reads as what a well-run small tool spends in pure infrastructure per active user, not as what higher-education marketing spends to generate a single qualified lead. That argument rests on cost discipline, not on audience size &mdash; and it would be stronger still with a genuine unique-visitor count, once Matomo&rsquo;s tracking on these two properties is fixed.</p>
+    <p class="sources">Sources: <a href="https://www.searchinfluence.com/blog/2026-higher-education-marketing-benchmarks/" target="_blank" rel="noopener">Search Influence, 2026 Higher Education Marketing Benchmarks</a> &middot; <a href="https://cheq.ai/blog/what-is-cost-per-visit-cpv/" target="_blank" rel="noopener">CHEQ, What Is Cost Per Visit (CPV)</a> &middot; <a href="https://spendark.com/blog/cloud-cost-saas-startups/" target="_blank" rel="noopener">Spendark, Cloud Cost Management for SaaS Startups</a></p>`;
 })();
 
 drawVisits(); drawVisitsTable(); drawDepth();
