@@ -4,36 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A single-page, dependency-free analytics report: `site/Aurora-OpenAIRE-Usage-Dashboard.html`. It presents Matomo usage stats for two Aurora Universities Alliance / OpenAIRE portals — **CONNECT** (`aurora.openaire.eu`) and **MONITOR** (`monitor.openaire.eu/dashboard/aurora`) — for the Aurora2030 review committee. The raw Matomo CSV exports that the dashboard's numbers were derived from live in `data/`.
+A dependency-free analytics report, in two HTML flavors, both in `site/`:
 
-There is no package.json, build tool, linter, or test suite. "Developing" here means editing the HTML file directly and opening it in a browser.
+- `Aurora-OpenAIRE-Usage-Dashboard-dynamic.html` — the **default**. Loads the 10 Matomo CSVs live in the browser via DuckDB-Wasm; nothing is pre-baked. See "Data is loaded live" below.
+- `Aurora-OpenAIRE-Usage-Dashboard.html` — a static, pre-baked snapshot of the same data (the original version, kept as a frozen fallback/comparison point).
+
+Both present Matomo usage stats for two Aurora Universities Alliance / OpenAIRE portals — **CONNECT** (`aurora.openaire.eu`) and **MONITOR** (`monitor.openaire.eu/dashboard/aurora`) — for the Aurora2030 review committee. The raw Matomo CSV exports both dashboards are built from live in `data/`.
+
+There is no package.json, build tool, linter, or test suite. "Developing" here means editing the HTML files directly and opening them in a browser.
 
 ## Layout
 
-- `index.html` — GitHub Pages entry point; redirects to `site/Aurora-OpenAIRE-Usage-Dashboard.html`.
-- `site/` — the dashboard HTML (and, once the redesign/dynamic-loading TODOs land, its assets/scripts).
-- `data/` — the raw Matomo CSV exports the dashboard's figures were built from.
+- `index.html` — GitHub Pages entry point; redirects to the dynamic dashboard by default, or the static one at `index.html#static`.
+- `site/` — the two dashboard HTML files (see above).
+- `data/` — the raw Matomo CSV exports the dashboards' figures are built from.
 - `.claude/skills/` — vendored skills for follow-up work on this repo (see below).
 - `TODO.md` — planned work: brand redesign, further reorg, dynamic CSV loading.
 - `docs/data.md` / `docs/design.md` — how the data pipeline (CSV → SQL → chart/variable) and the visual design decisions work, in more depth than fits here.
 
 ## Running / previewing
 
-Just open the file — no server or build step required:
+Just open a file — no server or build step required:
 
 ```
-open site/Aurora-OpenAIRE-Usage-Dashboard.html   # or: xdg-open / drag into a browser
+open site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html   # or: xdg-open / drag into a browser
 ```
+
+The dynamic version fetches `../data/*.csv` via relative paths, so it also needs to be served (or opened) with `data/` present alongside `site/` at the same relative location — true whether run from a local file, a local server, or GitHub Pages.
 
 There is nothing to install, compile, lint, or test.
 
-## Architecture of the dashboard file
+## Architecture of the dashboard files
 
-The HTML file is entirely self-contained (one `<style>` block, one `<script>` block at the bottom). The only external resources are Google Fonts (Archivo Black, Manrope, IBM Plex Mono) — everything else, including charts, is hand-rolled.
+Each HTML file is entirely self-contained (one `<style>` block, one `<script>` block at the bottom). The only external resources are Google Fonts (Archivo Black, Manrope, IBM Plex Mono) and, for the dynamic file, DuckDB-Wasm from jsDelivr — everything else, including charts, is hand-rolled.
 
 **Brand**: matches aurora-universities.eu — Archivo Black for headings/display numbers, Manrope for body text, IBM Plex Mono kept for tabular/numeric UI (Aurora's own site has no brand mono font). Core palette: `--s1`/CONNECT teal→blue `#008dff`, `--s2`/MONITOR `#01c8b1`, ink `#0d0a46`, body text `#555371`, background `#f7f8fc`, plus `#de53ae`/`#7141f1`/`#ffa255` categorical accents. All colors live in the `:root` custom properties (see Theming below) — redo the palette there, not by hunting for hardcoded hex values in the rules.
 
-**Data is baked in, not fetched at runtime.** The `<script>` starts with a `RAW` object literal — arrays of arrays, one entry per month/dimension row, keyed by dataset (`CONNECT`, `CONNECT_ch`, `MONITOR`, `MONITOR_ch`, `pages`, `mpage`, `CONNECT_country`, `CONNECT_city`, `MONITOR_country`, `MONITOR_city`). This was manually transcribed from the CSV exports; the page never reads the `.csv` files directly. **To refresh the dashboard with new data, you must re-export from Matomo, hand-condense the rows, and edit the `RAW` literal (and the `mpage` object, and `ALL_MONTHS` range in `monthsBetween('2023-12','2026-08')`) yourself.**
+**The static file bakes data in; the dynamic file loads it live.** Both build the exact same `RAW` object shape, just differently:
+
+- **Static** (`Aurora-OpenAIRE-Usage-Dashboard.html`): the `<script>` starts with a `RAW` object literal — arrays of arrays, one entry per month/dimension row, keyed by dataset (`CONNECT`, `CONNECT_ch`, `MONITOR`, `MONITOR_ch`, `pages`, `mpage`, `CONNECT_country`, `CONNECT_city`, `MONITOR_country`, `MONITOR_city`). This was manually transcribed from the CSV exports; the page never reads the `.csv` files directly. **To refresh this dashboard with new data, you must re-export from Matomo, hand-condense the rows, and edit the `RAW` literal (and the `mpage` object, and `ALL_MONTHS` range in `monthsBetween('2023-12','2026-08')`) yourself.**
+- **Dynamic** (`Aurora-OpenAIRE-Usage-Dashboard-dynamic.html`): has no `RAW` literal at all. An async `loadRAW()` fetches the same 10 CSVs from `../data/`, decodes them (UTF-16, see below), loads them into an in-browser DuckDB via DuckDB-Wasm, runs SQL, and assembles a `RAW` object of the same shape plus a `meta` block (period, load timestamp, per-portal row counts) that the page renders from instead of hand-typed prose. Refreshing this dashboard just means dropping new CSVs into `data/` with the same filenames — everything recomputes on next load. See `docs/data.md` for the exact CSV→SQL→`RAW` mapping and the DuckDB/CSV quirks it took to get an exact match against the static file's numbers.
 
 Key pieces in the script, top to bottom:
 - `RAW` — the embedded dataset described above.
@@ -66,4 +76,4 @@ The `data/Export _ *.csv` files are raw Matomo exports (Channel Type, City, Coun
 
 ## Open work (see TODO.md)
 
-Only TODO item 3 (dynamic CSV loading in-browser) is still open. Note for future fetches: this sandbox's network egress policy blocks arbitrary external domains outright (confirmed even `example.com` is blocked) — getting the actual aurora-universities.eu colors/fonts for the redesign required the user to upload a saved copy of the page rather than fetching it live; the same constraint will apply to any future live-site lookups from this repo.
+All four TODO.md items are done, dynamic CSV loading (item 3) included — confirmed working against the live GitHub Pages deployment. Note for future fetches: this sandbox's network egress policy blocks arbitrary external domains outright (confirmed even `example.com` and `cdn.jsdelivr.net` are blocked) — getting the actual aurora-universities.eu colors/fonts for the redesign required the user to upload a saved copy of the page rather than fetching it live, and the DuckDB-Wasm CDN bug (see `docs/data.md`) had to be root-caused by installing the npm package locally instead of testing the live import; the same constraint will apply to any future live-site or CDN lookups from this repo.

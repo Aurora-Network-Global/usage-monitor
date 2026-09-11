@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="canonical" href="site/Aurora-OpenAIRE-Usage-Dashboard.html">
+<link rel="canonical" href="site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html">
 <title>Aurora Portal Uptake</title>
 <script>
-  // Default: static (production) dashboard. Visit index.html#dynamic to swap to the
-  // work-in-progress dynamic-loading version instead.
-  var target = location.hash === '#dynamic'
-    ? 'site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html'
-    : 'site/Aurora-OpenAIRE-Usage-Dashboard.html';
+  // Default: live-data dashboard (loads the CSVs dynamically in-browser via DuckDB-Wasm).
+  // Visit index.html#static for the static, pre-baked snapshot instead.
+  var target = location.hash === '#static'
+    ? 'site/Aurora-OpenAIRE-Usage-Dashboard.html'
+    : 'site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html';
   location.replace(target);
 </script>
 </head>
 <body>
-<p>Redirecting to the <a href="site/Aurora-OpenAIRE-Usage-Dashboard.html">Aurora Portal Uptake dashboard</a>
-(or the <a href="index.html#dynamic">work-in-progress dynamic version</a>).</p>
+<p>Redirecting to the <a href="site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html">Aurora Portal Uptake dashboard</a>
+(or the <a href="index.html#static">static snapshot</a>).</p>
 </body>
 </html>

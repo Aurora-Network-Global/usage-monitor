@@ -2,8 +2,8 @@
 
 Two versions of the dashboard live in `site/`:
 
-- **`Aurora-OpenAIRE-Usage-Dashboard.html`** (static/production) — the 10 CSVs were read once, hand-aggregated, and the result baked into a `RAW` JS object literal near the top of the `<script>` block. Nothing is fetched at runtime.
-- **`Aurora-OpenAIRE-Usage-Dashboard-dynamic.html`** (work in progress, TODO item 3) — has no `RAW` literal. A `loadRAW()` function fetches the same 10 CSVs from `../data/` at page-load time, loads them into an in-browser DuckDB (via DuckDB-Wasm), runs the SQL below, and assembles a `RAW` object with the **exact same shape** the static file hardcodes. Everything downstream of that point — every chart, table, and computed stat — is identical code between the two files; only how `RAW` gets populated differs.
+- **`Aurora-OpenAIRE-Usage-Dashboard-dynamic.html`** (the default, linked from `index.html`) — has no `RAW` literal. A `loadRAW()` function fetches the 10 CSVs from `../data/` at page-load time, loads them into an in-browser DuckDB (via DuckDB-Wasm), runs the SQL below, and assembles a `RAW` object with the **exact same shape** the static file hardcodes. Everything downstream of that point — every chart, table, and computed stat — is identical code between the two files; only how `RAW` gets populated differs. Confirmed working against the live GitHub Pages deployment (see the jsDelivr/`apache-arrow` quirk below, which blocked it until fixed).
+- **`Aurora-OpenAIRE-Usage-Dashboard.html`** (static snapshot, `index.html#static`) — the 10 CSVs were read once, hand-aggregated, and the result baked into a `RAW` JS object literal near the top of the `<script>` block. Nothing is fetched at runtime. Kept as a frozen fallback/comparison point.
 
 This split means the rest of this document (how `RAW`'s fields map to variables and charts) applies to both files equally.
 

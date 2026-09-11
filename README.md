@@ -6,10 +6,10 @@ Usage report on the **Aurora Universities Alliance / OpenAIRE** portals — **CO
 
 ## What's in this repo
 
-- `site/Aurora-OpenAIRE-Usage-Dashboard.html` — the report itself: a single, self-contained, dependency-free HTML page (monthly visits, depth of use, referrer channels, top pages, and geography for both portals).
-- `site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html` — a work-in-progress version that loads the CSVs live in the browser (DuckDB-Wasm) instead of a pre-baked copy of the data. Visit `index.html#dynamic` to see it.
-- `index.html` — redirects to the static dashboard above by default, so GitHub Pages serves it at the site root.
-- `data/Export _ *.csv` — the raw Matomo exports (Channel Type, City, Country, Main metrics, Page URLs, split by portal) that the dashboard's figures were built from.
+- `site/Aurora-OpenAIRE-Usage-Dashboard-dynamic.html` — the report, live: a single, self-contained, dependency-free HTML page (monthly visits, depth of use, referrer channels, top pages, and geography for both portals) that loads the 10 CSVs itself, in the browser, via DuckDB-Wasm — nothing is pre-baked. First load takes a few seconds while the CSVs and query engine download. This is the default.
+- `site/Aurora-OpenAIRE-Usage-Dashboard.html` — the same report as a static, pre-baked snapshot of the same data, kept as a frozen fallback/comparison point. Visit `index.html#static` to see it.
+- `index.html` — redirects to the live dashboard above by default (`index.html#static` for the static snapshot), so GitHub Pages serves it at the site root. Either dashboard also links to the other via the "Version" link in its header.
+- `data/Export _ *.csv` — the raw Matomo exports (Channel Type, City, Country, Main metrics, Page URLs, split by portal) that both dashboards' figures are built from.
 
 The dashboard's look matches the [Aurora Universities Alliance](https://aurora-universities.eu/) brand — Archivo Black / Manrope typography, teal/blue/navy palette.
 
