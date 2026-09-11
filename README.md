@@ -13,6 +13,26 @@ Usage report on the **Aurora Universities Alliance / OpenAIRE** portals — **CO
 
 The dashboard's look matches the [Aurora Universities Alliance](https://aurora-universities.eu/) brand — Archivo Black / Manrope typography, teal/blue/navy palette.
 
+## Updating the data
+
+The live dashboard (`Aurora-OpenAIRE-Usage-Dashboard-dynamic.html`) reads the 10 CSVs in `data/` at page-load time, so refreshing it is just a file swap — no code edit, no rebuild:
+
+1. Re-export the same 10 reports from Matomo (Main metrics, Channel Type, Page URLs, Country, City — each for CONNECT and MONITOR).
+2. Rename each export to the fixed filename it replaces (Matomo's own download names embed the export's date range, which changes every time, so the loader looks for a fixed name instead — see the exact 10 names in `docs/data.md`):
+
+   ```
+   Export _ Main metrics _ CONNECT.csv        Export _ Main metrics _ MONITOR.csv
+   Export _ Channel Type _ CONNECT.csv        Export _ Channel Type _ MONITOR.csv
+   Export _ Page URLs _ CONNECT.csv           Export _ Page URLs _ MONITOR.csv
+   Export _ Country _ CONNECT.csv             Export _ Country _ MONITOR.csv
+   Export _ City _ CONNECT.csv                Export _ City _ MONITOR.csv
+   ```
+3. Overwrite the matching files in `data/` and push. Everything else — the date range shown, daily-row counts, all figures — recomputes on next page load.
+
+**Only have one portal's exports** (e.g. running this for a single-portal deployment rather than Aurora's CONNECT+MONITOR pair)? Drop in just that portal's 5 files and leave the other 5 out — the dashboard detects which portal(s) have data and hides the rest, rather than erroring. See "Reusing this dashboard for a different portal (or a single one)" in `docs/data.md` for what else needs a manual edit (branding, portal names/colors, Aurora's member-institution lists) versus what just works from data alone.
+
+The static dashboard (`Aurora-OpenAIRE-Usage-Dashboard.html`) is a frozen snapshot and doesn't read `data/` at all — refreshing it means hand-editing its `RAW` literal, per `CLAUDE.md`.
+
 See `CLAUDE.md` for a quick orientation, `docs/data.md` and `docs/design.md` for the data pipeline and design decisions in depth, and `TODO.md` for what's still planned.
 
 ## License
